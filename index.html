@@ -329,6 +329,7 @@
                 .then(data => {
                     // Assuming your JSON has { "sutras": [...] }
                     sutraDatabase = data.sutras;
+                    populateNurpas();
                 })
                 .catch(error => console.error("Error loading sutra text:", error));
 
@@ -399,10 +400,17 @@
             for (let i = currentIyal.start; i <= currentIyal.end; i++) {
                 const btn = document.createElement('button');
                 btn.className = 'nurpa-btn';
-
-                // Simplified text - Nannool uses global numbers mostly
                 btn.textContent = i.toString();
                 btn.dataset.songNo = i;
+
+                // Add native browser tooltip on hover
+                if (sutraDatabase && sutraDatabase.length > 0) {
+                    const sutraObj = sutraDatabase.find(s => s.number === i);
+                    if (sutraObj) {
+                        // Combines title and text with a line break for a clean preview
+                        btn.title = sutraObj.title ? `${sutraObj.title}\n\n${sutraObj.text}` : sutraObj.text;
+                    }
+                }
 
                 if (i === activeSongNo) {
                     btn.classList.add('active');
@@ -411,7 +419,6 @@
                 nurpaContainer.appendChild(btn);
             }
         }
-
 
         function loadNurpa(songNo) {
             activeSongNo = songNo;
