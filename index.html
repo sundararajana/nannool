@@ -186,6 +186,32 @@
             color: white;
             border-color: var(--primary);
         }
+
+        /* Sutra Display Card */
+        .sutra-card {
+            background-color: var(--surface);
+            border-left: 4px solid var(--primary);
+            border-radius: 0 8px 8px 0;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: none; /* Hidden until a button is clicked */
+        }
+
+        .sutra-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 0 0 10px 0;
+        }
+
+        .sutra-text {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: var(--text-main);
+            margin: 0;
+            white-space: pre-wrap; /* This makes the \n in your JSON render as actual line breaks! */
+        }
     </style>
 </head>
 <body>
@@ -220,6 +246,12 @@
 
         <div id="current-selection-text" class="status-text">நூற்பாவைத் தேர்ந்தெடுக்கவும்...</div>
 
+        <!-- The container where the sutra text will appear -->
+        <div id="sutra-display" class="sutra-card">
+          <h4 id="sutra-title" class="sutra-title"></h4>
+          <p id="sutra-text" class="sutra-text"></p>
+        </div>
+
         <div id="nurpa-container" class="nurpa-grid">
             <!-- Buttons generated here -->
         </div>
@@ -234,6 +266,8 @@
     </main>
 
     <script>
+        let sutraDatabase = [];
+
         // Nannool Data Structure
         // Based on standard 462 count.
         // Note on 'id': TamilVU uses head_id. URL showed head_id=10 for Eluthu.
@@ -286,6 +320,15 @@
         let readerWindow = null;
 
         function init() {
+            // Fetch the JSON file
+            fetch('nannool.json')
+                .then(response => response.json())
+                .then(data => {
+                    // Assuming your JSON has { "sutras": [...] }
+                    sutraDatabase = data.sutras;
+                })
+                .catch(error => console.error("Error loading sutra text:", error));
+
             nannoolData.forEach(athikaram => {
                 const option = document.createElement('option');
                 option.value = athikaram.id;
@@ -366,9 +409,11 @@
             }
         }
 
+
         function loadNurpa(songNo) {
             activeSongNo = songNo;
 
+            // 1. Update Dropdowns and Button Highlights (Existing logic)
             const loc = findLocationOfSutra(songNo);
             if (loc) {
                 let dropdownsChanged = false;
@@ -400,21 +445,32 @@
                 }
             }
 
-            // Updated URL construction for l0900 (Nannool)
+            // 2. Inject the JSON text into the card
+            if (sutraDatabase && sutraDatabase.length > 0) {
+                const sutraObj = sutraDatabase.find(s => s.number === songNo);
+                if (sutraObj) {
+                    // Update the title and text
+                    document.getElementById('sutra-title').textContent = sutraObj.title || "";
+                    document.getElementById('sutra-text').textContent = sutraObj.text;
+                    // Make the card visible
+                    document.getElementById('sutra-display').style.display = 'block';
+                }
+            }
+
+            // 3. Update the status text and next/prev buttons (Existing logic)
+            currentSelectionText.textContent = `தற்போது திரையில்: நூற்பா ${songNo}`;
+            prevBtn.disabled = (songNo <= 1);
+            nextBtn.disabled = (songNo >= MAX_SUTRA);
+
+            // 4. Trigger the Companion Tab
             const targetUrl = `https://www.tamilvu.org/slet/l0900/l0900uri.jsp?song_no=${songNo}&book_id=6&head_id=${currentAthikaramId}`;
 
             if (!readerWindow || readerWindow.closed) {
-                // Unique window name for Nannool so it doesn't clash with Tolkappiyam
                 readerWindow = window.open(targetUrl, "NannoolReader");
             } else {
                 readerWindow.location.href = targetUrl;
                 readerWindow.focus();
             }
-
-            currentSelectionText.textContent = `தற்போது திரையில்: நூற்பா ${songNo}`;
-
-            prevBtn.disabled = (songNo <= 1);
-            nextBtn.disabled = (songNo >= MAX_SUTRA);
         }
 
         init();
