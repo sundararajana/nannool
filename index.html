@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>நன்னூல் உரை தேடி (Nannool UI)</title>
+    <style>
+        /* Exact same styling as Tolkappiyam UI */
+        :root {
+            --primary: #059669; /* Changed to a nice green to differentiate from Tolkappiyam */
+            --primary-hover: #047857;
+            --bg-color: #F9FAFB;
+            --surface: #FFFFFF;
+            --border: #E5E7EB;
+            --text-main: #111827;
+            --text-muted: #6B7280;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+        }
+
+        .top-nav {
+            background-color: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 15px 25px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        h1 {
+            font-size: 1.25rem;
+            margin: 0;
+            color: var(--primary);
+            white-space: nowrap;
+        }
+
+        .selectors-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .select-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        select {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            background-color: #fff;
+            cursor: pointer;
+            min-width: 150px;
+        }
+
+        .actions-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background-color: #fff;
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-main);
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background-color: #F3F4F6;
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .author-btn {
+            background-color: #FEE2E2;
+            color: #B91C1C;
+            border: 1px solid #FCA5A5;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: background-color 0.2s;
+            white-space: nowrap;
+        }
+
+        .author-btn:hover {
+            background-color: #FECACA;
+        }
+
+        .main-content {
+            padding: 25px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .info-banner {
+            background-color: #ECFDF5;
+            border: 1px solid #A7F3D0;
+            color: #047857;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-text {
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .nurpa-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
+            gap: 10px;
+            padding-bottom: 40px;
+        }
+
+        .nurpa-btn {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 12px 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        .nurpa-btn:hover {
+            background-color: #D1FAE5;
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        .nurpa-btn.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+    <header class="top-nav">
+        <div class="nav-brand">
+            <h1>நன்னூல் உரை</h1>
+        </div>
+
+        <div class="selectors-group">
+            <div class="select-wrapper">
+                <label for="athikaram-select">பகுதி</label>
+                <select id="athikaram-select"></select>
+            </div>
+            <div class="select-wrapper">
+                <label for="iyal-select">இயல்</label>
+                <select id="iyal-select"></select>
+            </div>
+        </div>
+
+        <div class="actions-group">
+            <button id="prev-btn" class="nav-btn" disabled>&larr; முந்தையது</button>
+            <button id="next-btn" class="nav-btn" disabled>அடுத்தது &rarr;</button>
+            <button id="change-author-btn" class="author-btn">உரையாசிரியரை மாற்று</button>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="info-banner">
+            <span><strong>இணைப்புத் திரை முறை:</strong> நூற்பா எண்களை அழுத்தினால், உரை விளக்கங்கள் தனியொரு புதிய திரையில் (New Tab) திறக்கப்படும்.</span>
+        </div>
+
+        <div id="current-selection-text" class="status-text">நூற்பாவைத் தேர்ந்தெடுக்கவும்...</div>
+
+        <div id="nurpa-container" class="nurpa-grid">
+            <!-- Buttons generated here -->
+        </div>
+    </main>
+
+    <script>
+        // Nannool Data Structure
+        // Based on standard 462 count.
+        // Note on 'id': TamilVU uses head_id. URL showed head_id=10 for Eluthu.
+        // I have set Payiram to 9, Eluthu to 10, Sol to 11. If they fail, you can tweak them!
+        const nannoolData = [
+            {
+                id: 9,
+                name: "பாயிரம்",
+                iyals: [
+                    { name: "பாயிரம்", start: 1, end: 55 }
+                ]
+            },
+            {
+                id: 10,
+                name: "எழுத்ததிகாரம்",
+                iyals: [
+                    { name: "எழுத்தியல்", start: 56, end: 127 },
+                    { name: "பதவியல்", start: 128, end: 149 },
+                    { name: "உயிரீற்றுப் புணரியல்", start: 150, end: 203 },
+                    { name: "மெய்யீற்றுப் புணரியல்", start: 204, end: 239 },
+                    { name: "உருபுப் புணரியல்", start: 240, end: 257 }
+                ]
+            },
+            {
+                id: 11,
+                name: "சொல்லதிகாரம்",
+                iyals: [
+                    { name: "பெயரியல்", start: 258, end: 319 },
+                    { name: "வினையியல்", start: 320, end: 351 },
+                    { name: "பொதுவியல்", start: 352, end: 419 },
+                    { name: "இடையியல்", start: 420, end: 441 },
+                    { name: "உரியியல்", start: 442, end: 462 }
+                ]
+            }
+        ];
+
+        const MAX_SUTRA = nannoolData[2].iyals[4].end; // 462
+
+        const athikaramSelect = document.getElementById('athikaram-select');
+        const iyalSelect = document.getElementById('iyal-select');
+        const nurpaContainer = document.getElementById('nurpa-container');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const currentSelectionText = document.getElementById('current-selection-text');
+        const changeAuthorBtn = document.getElementById('change-author-btn');
+
+        let currentAthikaramId = nannoolData[0].id;
+        let currentIyal = nannoolData[0].iyals[0];
+        let activeSongNo = null;
+        let readerWindow = null;
+
+        function init() {
+            nannoolData.forEach(athikaram => {
+                const option = document.createElement('option');
+                option.value = athikaram.id;
+                option.textContent = athikaram.name;
+                athikaramSelect.appendChild(option);
+            });
+
+            athikaramSelect.addEventListener('change', (e) => {
+                currentAthikaramId = parseInt(e.target.value);
+                populateIyals(currentAthikaramId);
+            });
+
+            iyalSelect.addEventListener('change', (e) => {
+                const athikaram = nannoolData.find(a => a.id === currentAthikaramId);
+                currentIyal = athikaram.iyals[e.target.value];
+                populateNurpas();
+            });
+
+            prevBtn.addEventListener('click', () => {
+                if (activeSongNo > 1) loadNurpa(activeSongNo - 1);
+            });
+
+            nextBtn.addEventListener('click', () => {
+                if (activeSongNo < MAX_SUTRA) loadNurpa(activeSongNo + 1);
+            });
+
+            changeAuthorBtn.addEventListener('click', () => {
+                alert("தமிழ் இணையக் கல்விக்கழகத்தின் முதன்மைப் பக்கம் புதிய திரையில் திறக்கப்படும். அங்கு ஒரு நூற்பாவைச் சொடுக்கி, உங்கள் புதிய உரையாசிரியரைத் தேர்ந்தெடுத்த பின், இங்கு திரும்பி தொடர்ந்து படிக்கலாம்.");
+                // Updated book_id=6 for Nannool
+                window.open("https://www.tamilvu.org/library/l0900/html/l0900ind.htm?book_id=6", "NannoolReader");
+            });
+
+            populateIyals(currentAthikaramId);
+        }
+
+        function findLocationOfSutra(songNo) {
+            for (let a of nannoolData) {
+                for (let i = 0; i < a.iyals.length; i++) {
+                    if (songNo >= a.iyals[i].start && songNo <= a.iyals[i].end) {
+                        return { athikaramId: a.id, iyalIndex: i };
+                    }
+                }
+            }
+            return null;
+        }
+
+        function populateIyals(athikaramId, autoLoadNurpas = true) {
+            iyalSelect.innerHTML = '';
+            const athikaram = nannoolData.find(a => a.id === athikaramId);
+
+            athikaram.iyals.forEach((iyal, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = iyal.name;
+                iyalSelect.appendChild(option);
+            });
+
+            currentIyal = athikaram.iyals[0];
+            if (autoLoadNurpas) populateNurpas();
+        }
+
+        function populateNurpas() {
+            nurpaContainer.innerHTML = '';
+
+            for (let i = currentIyal.start; i <= currentIyal.end; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'nurpa-btn';
+
+                // Simplified text - Nannool uses global numbers mostly
+                btn.textContent = i.toString();
+                btn.dataset.songNo = i;
+
+                if (i === activeSongNo) {
+                    btn.classList.add('active');
+                }
+                btn.onclick = () => loadNurpa(i);
+                nurpaContainer.appendChild(btn);
+            }
+        }
+
+        function loadNurpa(songNo) {
+            activeSongNo = songNo;
+
+            const loc = findLocationOfSutra(songNo);
+            if (loc) {
+                let dropdownsChanged = false;
+
+                if (currentAthikaramId !== loc.athikaramId) {
+                    currentAthikaramId = loc.athikaramId;
+                    athikaramSelect.value = currentAthikaramId;
+                    populateIyals(currentAthikaramId, false);
+                    dropdownsChanged = true;
+                }
+
+                if (parseInt(iyalSelect.value) !== loc.iyalIndex) {
+                    iyalSelect.value = loc.iyalIndex;
+                    const athikaram = nannoolData.find(a => a.id === currentAthikaramId);
+                    currentIyal = athikaram.iyals[loc.iyalIndex];
+                    dropdownsChanged = true;
+                }
+
+                if (dropdownsChanged) {
+                    populateNurpas();
+                } else {
+                    document.querySelectorAll('.nurpa-btn').forEach(b => {
+                        if (parseInt(b.dataset.songNo) === songNo) {
+                            b.classList.add('active');
+                        } else {
+                            b.classList.remove('active');
+                        }
+                    });
+                }
+            }
+
+            // Updated URL construction for l0900 (Nannool)
+            const targetUrl = `https://www.tamilvu.org/slet/l0900/l0900uri.jsp?song_no=${songNo}&book_id=6&head_id=${currentAthikaramId}`;
+
+            if (!readerWindow || readerWindow.closed) {
+                // Unique window name for Nannool so it doesn't clash with Tolkappiyam
+                readerWindow = window.open(targetUrl, "NannoolReader");
+            } else {
+                readerWindow.location.href = targetUrl;
+                readerWindow.focus();
+            }
+
+            currentSelectionText.textContent = `தற்போது திரையில்: நூற்பா ${songNo}`;
+
+            prevBtn.disabled = (songNo <= 1);
+            nextBtn.disabled = (songNo >= MAX_SUTRA);
+        }
+
+        init();
+    </script>
+</body>
+</html>
