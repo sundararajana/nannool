@@ -330,6 +330,15 @@
                     // Assuming your JSON has { "sutras": [...] }
                     sutraDatabase = data.sutras;
                     populateNurpas();
+
+                    // Check URL for ?song_no=
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const requestedSong = parseInt(urlParams.get('song_no'));
+
+                    // If a valid number was passed, load it without triggering the popup
+                    if (requestedSong && requestedSong >= 1 && requestedSong <= MAX_SUTRA) {
+                        loadNurpa(requestedSong, false);
+                    }
                 })
                 .catch(error => console.error("Error loading sutra text:", error));
 
@@ -420,7 +429,7 @@
             }
         }
 
-        function loadNurpa(songNo) {
+        function loadNurpa(songNo, openTab = true) {
             activeSongNo = songNo;
 
             // 1. Update Dropdowns and Button Highlights (Existing logic)
@@ -473,13 +482,15 @@
             nextBtn.disabled = (songNo >= MAX_SUTRA);
 
             // 4. Trigger the Companion Tab
-            const targetUrl = `https://www.tamilvu.org/slet/l0900/l0900uri.jsp?song_no=${songNo}&book_id=6&head_id=${currentAthikaramId}`;
+            if (openTab) {
+               const targetUrl = `https://www.tamilvu.org/slet/l0900/l0900uri.jsp?song_no=${songNo}&book_id=6&head_id=${currentAthikaramId}`;
 
-            if (!readerWindow || readerWindow.closed) {
-                readerWindow = window.open(targetUrl, "NannoolReader");
-            } else {
-                readerWindow.location.href = targetUrl;
-                readerWindow.focus();
+               if (!readerWindow || readerWindow.closed) {
+                   readerWindow = window.open(targetUrl, "NannoolReader");
+               } else {
+                   readerWindow.location.href = targetUrl;
+                   readerWindow.focus();
+               }
             }
         }
 
