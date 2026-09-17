@@ -476,7 +476,7 @@
             }
 
             // 2. Inject the JSON text into the card
-            if (sutraDatabase && sutraDatabase.length > 0) {
+            if (typeof sutraDatabase !== 'undefined' && sutraDatabase.length > 0) {
                 const sutraObj = sutraDatabase.find(s => s.number === songNo);
                 if (sutraObj) {
                     // Update the title and text
@@ -484,6 +484,9 @@
                     document.getElementById('sutra-text').textContent = sutraObj.text;
                     // Make the card visible
                     document.getElementById('sutra-display').style.display = 'block';
+                } else {
+                    // Hide the box if the sutra isn't in the JSON (defensive code)
+                    document.getElementById('sutra-display').style.display = 'none';
                 }
             }
 
