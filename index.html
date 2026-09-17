@@ -403,6 +403,17 @@
             if (autoLoadNurpas) populateNurpas();
         }
 
+        function openTamilVuPopup(songNo, athikaramId) {
+            const targetUrl = `https://www.tamilvu.org/slet/l0900/l0900uri.jsp?song_no=${songNo}&book_id=6&head_id=${athikaramId}`;
+
+            if (!readerWindow || readerWindow.closed) {
+                readerWindow = window.open(targetUrl, "NannoolReader");
+            } else {
+                readerWindow.location.href = targetUrl;
+                readerWindow.focus();
+            }
+        }
+
         function populateNurpas() {
             nurpaContainer.innerHTML = '';
 
@@ -477,20 +488,18 @@
             }
 
             // 3. Update the status text and next/prev buttons (Existing logic)
-            currentSelectionText.textContent = `தற்போது திரையில்: நூற்பா ${songNo}`;
+            currentSelectionText.innerHTML = `தேர்ந்தெடுக்கப்பட்ட நூற்பா: <strong>${songNo}</strong>
+    <a href="#" onclick="openTamilVuPopup(${songNo}, ${currentAthikaramId}); return false;"
+       style="margin-left: 15px; color: var(--primary); font-weight: 600; text-decoration: none; border: 1px solid var(--primary); padding: 4px 10px; border-radius: 6px; background-color: #ECFDF5; display: inline-block; font-size: 0.9rem;">
+       பழைய உரையைத் திறக்க ↗
+    </a>`;a
+
             prevBtn.disabled = (songNo <= 1);
             nextBtn.disabled = (songNo >= MAX_SUTRA);
 
             // 4. Trigger the Companion Tab
             if (openTab) {
-               const targetUrl = `https://www.tamilvu.org/slet/l0900/l0900uri.jsp?song_no=${songNo}&book_id=6&head_id=${currentAthikaramId}`;
-
-               if (!readerWindow || readerWindow.closed) {
-                   readerWindow = window.open(targetUrl, "NannoolReader");
-               } else {
-                   readerWindow.location.href = targetUrl;
-                   readerWindow.focus();
-               }
+               openTamilVuPopup(songNo, currentAthikaramId);
             }
         }
 
