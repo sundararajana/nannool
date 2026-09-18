@@ -221,6 +221,29 @@
             <h1>நன்னூல் உரை</h1>
         </div>
 
+        <div id="search-section" style="margin: 20px 0; padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="sutra-search-input" placeholder="நூற்பாக்களில் தேட... (Search text)"
+                    style="flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 1rem;">
+                <button onclick="executeSearch()"
+                        style="padding: 10px 20px; background-color: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                    தேடு
+                </button>
+            </div>
+
+            <div id="search-results-container" style="display: none; margin-top: 15px; max-height: 400px; overflow-y: auto;">
+                <table style="width: 100%; border-collapse: collapse; background: white;">
+                    <thead style="position: sticky; top: 0; background: #f1f5f9; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+                        <tr>
+                            <th style="padding: 10px; text-align: left; width: 15%; border-bottom: 2px solid #cbd5e1;">எண்</th>
+                            <th style="padding: 10px; text-align: left; border-bottom: 2px solid #cbd5e1;">நூற்பா (Sutra)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="search-results-body"></tbody>
+                </table>
+            </div>
+        </div>
+
         <div class="selectors-group">
             <div class="select-wrapper">
                 <label for="athikaram-select">பகுதி</label>
@@ -321,6 +344,56 @@
         let currentIyal = nannoolData[0].iyals[0];
         let activeSongNo = null;
         let readerWindow = null;
+
+        function executeSearch() {
+            const inputField = document.getElementById('sutra-search-input');
+            const query = inputField.value.trim();
+            const resultsContainer = document.getElementById('search-results-container');
+            const resultsBody = document.getElementById('search-results-body');
+
+            // Hide if empty search
+            if (!query) {
+                resultsContainer.style.display = 'none';
+                return;
+            }
+
+            // 1. Filter the database (Tamil text only, no safe-zone check)
+            const results = sutraDatabase.filter(s => {
+                return s.text && s.text.includes(query);
+            });
+
+            // 2. Build the table rows
+            resultsBody.innerHTML = '';
+
+            if (results.length === 0) {
+                resultsBody.innerHTML = `<tr><td colspan="2" style="padding: 15px; text-align: center; color: #64748b;">முடிவுகள் இல்லை (No results found)</td></tr>`;
+            } else {
+                const highlightRegex = new RegExp(`(${query})`, 'gi');
+
+                results.forEach(s => {
+                    const highlightedText = s.text.replace(highlightRegex, '<mark style="background-color: #fef08a; border-radius: 2px; padding: 0 2px;">$1</mark>');
+
+                    const row = `
+                        <tr style="border-bottom: 1px solid #e2e8f0; transition: background-color 0.2s;">
+                            <td style="padding: 12px; vertical-align: top;">
+                                <a href="?song_no=${s.number}"
+                                style="display: inline-block; padding: 4px 8px; background: #eff6ff; color: var(--primary); border: 1px solid #bfdbfe; border-radius: 4px; text-decoration: none; font-weight: bold;">
+                                ${s.number}
+                                </a>
+                            </td>
+                            <td style="padding: 12px; vertical-align: top; white-space: pre-line; line-height: 1.6;">
+                                <strong style="color: #4B5563; font-size: 0.9em; display: block; margin-bottom: 4px;">${s.title || ''}</strong>
+                                ${highlightedText}
+                            </td>
+                        </tr>
+                    `;
+                    resultsBody.innerHTML += row;
+                });
+            }
+
+            // 3. Show the table
+            resultsContainer.style.display = 'block';
+        }
 
         function init() {
             // Fetch the JSON file
@@ -504,6 +577,12 @@
             if (openTab) {
                openTamilVuPopup(songNo, currentAthikaramId);
             }
+
+            document.getElementById('sutra-search-input').addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    executeSearch();
+                }
+            });
         }
 
         init();
