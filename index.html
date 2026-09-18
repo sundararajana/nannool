@@ -221,6 +221,25 @@
             <h1>நன்னூல் உரை</h1>
         </div>
 
+        <div class="selectors-group">
+            <div class="select-wrapper">
+                <label for="athikaram-select">பகுதி</label>
+                <select id="athikaram-select"></select>
+            </div>
+            <div class="select-wrapper">
+                <label for="iyal-select">இயல்</label>
+                <select id="iyal-select"></select>
+            </div>
+        </div>
+
+        <div class="actions-group">
+            <button id="prev-btn" class="nav-btn" disabled>&larr; முந்தையது</button>
+            <button id="next-btn" class="nav-btn" disabled>அடுத்தது &rarr;</button>
+            <button id="change-author-btn" class="author-btn">உரையாசிரியரை மாற்று</button>
+        </div>
+    </header>
+
+    <main class="main-content">
         <div id="search-section" style="margin: 20px 0; padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
             <div style="display: flex; gap: 10px;">
                 <input type="text" id="sutra-search-input" placeholder="நூற்பாக்களில் தேட... (Search text)"
@@ -244,25 +263,6 @@
             </div>
         </div>
 
-        <div class="selectors-group">
-            <div class="select-wrapper">
-                <label for="athikaram-select">பகுதி</label>
-                <select id="athikaram-select"></select>
-            </div>
-            <div class="select-wrapper">
-                <label for="iyal-select">இயல்</label>
-                <select id="iyal-select"></select>
-            </div>
-        </div>
-
-        <div class="actions-group">
-            <button id="prev-btn" class="nav-btn" disabled>&larr; முந்தையது</button>
-            <button id="next-btn" class="nav-btn" disabled>அடுத்தது &rarr;</button>
-            <button id="change-author-btn" class="author-btn">உரையாசிரியரை மாற்று</button>
-        </div>
-    </header>
-
-    <main class="main-content">
         <div class="info-banner">
             <span><strong>இணைப்புத் திரை முறை:</strong> நூற்பா எண்களை அழுத்தினால், உரை விளக்கங்கள் தனியொரு புதிய திரையில் (New Tab) திறக்கப்படும்.</span>
         </div>
