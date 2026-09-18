@@ -448,6 +448,12 @@
             });
 
             populateIyals(currentAthikaramId);
+
+            document.getElementById('sutra-search-input').addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    executeSearch();
+                }
+            });
         }
 
         function findLocationOfSutra(songNo) {
@@ -577,12 +583,6 @@
             if (openTab) {
                openTamilVuPopup(songNo, currentAthikaramId);
             }
-
-            document.getElementById('sutra-search-input').addEventListener('keydown', function (e) {
-                if (e.key === 'Enter') {
-                    executeSearch();
-                }
-            });
         }
 
         init();
