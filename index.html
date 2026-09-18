@@ -424,7 +424,7 @@
                 btn.dataset.songNo = i;
 
                 // Add native browser tooltip on hover
-                if (sutraDatabase && sutraDatabase.length > 0) {
+                if (typeof sutraDatabase !== 'undefined' && sutraDatabase.length > 0) {
                     const sutraObj = sutraDatabase.find(s => s.number === i);
                     if (sutraObj) {
                         // Combines title and text with a line break for a clean preview
