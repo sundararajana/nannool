@@ -471,6 +471,10 @@
 
         // Helper function to format the button/status text
         function getLabelForSutra(songNo, athikaramId) {
+            return songNo.toString();
+
+            /* If we ever want athikaram-wise number, we can enable the following.
+
             if (athikaramId === 9) {
                 return songNo.toString(); // Paayiram only needs the global number
             } else if (athikaramId === 10) {
@@ -478,6 +482,8 @@
             } else {
                 return `${songNo - 257} (${songNo})`; // Sollathikaram offset
             }
+
+            */
         }
 
         function populateIyals(athikaramId, autoLoadNurpas = true) {
