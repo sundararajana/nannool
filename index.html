@@ -471,10 +471,10 @@
 
         // Helper function to format the button/status text
         function getLabelForSutra(songNo, athikaramId) {
-            if (athikaramId === 1) {
+            if (athikaramId === 9) {
                 return songNo.toString(); // Paayiram only needs the global number
-            } else if (athikaramId === 2) {
-                return `${songNo - 54} (${songNo})`; // Ezhuthathikaram offset
+            } else if (athikaramId === 10) {
+                return `${songNo - 55} (${songNo})`; // Ezhuthathikaram offset
             } else {
                 return `${songNo - 257} (${songNo})`; // Sollathikaram offset
             }
