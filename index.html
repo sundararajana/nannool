@@ -469,6 +469,17 @@
             return null;
         }
 
+        // Helper function to format the button/status text
+        function getLabelForSutra(songNo, athikaramId) {
+            if (athikaramId === 1) {
+                return songNo.toString(); // Paayiram only needs the global number
+            } else if (athikaramId === 2) {
+                return `${songNo - 54} (${songNo})`; // Ezhuthathikaram offset
+            } else {
+                return `${songNo - 257} (${songNo})`; // Sollathikaram offset
+            }
+        }
+
         function populateIyals(athikaramId, autoLoadNurpas = true) {
             iyalSelect.innerHTML = '';
             const athikaram = nannoolData.find(a => a.id === athikaramId);
@@ -501,7 +512,7 @@
             for (let i = currentIyal.start; i <= currentIyal.end; i++) {
                 const btn = document.createElement('button');
                 btn.className = 'nurpa-btn';
-                btn.textContent = i.toString();
+                btn.textContent = getLabelForSutra(i, currentAthikaramId);
                 btn.dataset.songNo = i;
 
                 // Add native browser tooltip on hover
