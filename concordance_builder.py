@@ -21,31 +21,31 @@ nurpas = []
 concordance = defaultdict(list)
 
 
-for sutra in data["sutras"]:
-    global_noorpa = sutra["number"]
+for nurpa in data["nurpas"]:
+    global_nurpa = nurpa["number"]
 
-    text = unicodedata.normalize("NFC", sutra["text"])
+    text = unicodedata.normalize("NFC", nurpa["text"])
 
     # Store each sūtra exactly once, using 0-based array indexing.
     nurpas.append(text)
 
-    paadal_position = 0
+    nurpa_position = 0
 
     for line_number, line in enumerate(text.splitlines(), start=1):
         words = tokenize(line)
 
         for position, word in enumerate(words):
             concordance[word].append({
-                "adhikaaram": sutra["adhikaram"],
-                "iyal_name": sutra["iyal"],
-                "title": sutra["title"],
-                "global_noorpa": global_noorpa,
+                "adhikaaram": nurpa["adhikaram"],
+                "iyal_name": nurpa["iyal"],
+                "title": nurpa["title"],
+                "global_nurpa": global_nurpa,
                 "line": line_number,
                 "position": position,
-                "paadal_position": paadal_position
+                "nurpa_position": nurpa_position
             })
 
-            paadal_position += 1
+            nurpa_position += 1
 
 output = {
     "nurpas": nurpas,

@@ -187,8 +187,8 @@
             border-color: var(--primary);
         }
 
-        /* Sutra Display Card */
-        .sutra-card {
+        /* Nurpa Display Card */
+        .nurpa-card {
             background-color: var(--surface);
             border-left: 4px solid var(--primary);
             border-radius: 0 8px 8px 0;
@@ -198,14 +198,14 @@
             display: none; /* Hidden until a button is clicked */
         }
 
-        .sutra-title {
+        .nurpa-title {
             font-size: 1rem;
             font-weight: 700;
             color: var(--primary);
             margin: 0 0 10px 0;
         }
 
-        .sutra-text {
+        .nurpa-text {
             font-size: 1.15rem;
             line-height: 1.8;
             color: var(--text-main);
@@ -248,7 +248,7 @@
 
         <div id="search-section" style="margin: 20px 0; padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
             <div style="display: flex; gap: 10px;">
-                <input type="text" id="sutra-search-input" placeholder="நூற்பாக்களில் தேட... (Search text)"
+                <input type="text" id="nurpa-search-input" placeholder="நூற்பாக்களில் தேட... (Search text)"
                     style="flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 1rem;">
                 <button onclick="executeSearch()"
                         style="padding: 10px 20px; background-color: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
@@ -261,7 +261,7 @@
                     <thead style="position: sticky; top: 0; background: #f1f5f9; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
                         <tr>
                             <th style="padding: 10px; text-align: left; width: 15%; border-bottom: 2px solid #cbd5e1;">எண்</th>
-                            <th style="padding: 10px; text-align: left; border-bottom: 2px solid #cbd5e1;">நூற்பா (Sutra)</th>
+                            <th style="padding: 10px; text-align: left; border-bottom: 2px solid #cbd5e1;">நூற்பா</th>
                         </tr>
                     </thead>
                     <tbody id="search-results-body"></tbody>
@@ -275,10 +275,10 @@
 
         <div id="current-selection-text" class="status-text">நூற்பாவைத் தேர்ந்தெடுக்கவும்...</div>
 
-        <!-- The container where the sutra text will appear -->
-        <div id="sutra-display" class="sutra-card">
-          <h4 id="sutra-title" class="sutra-title"></h4>
-          <p id="sutra-text" class="sutra-text"></p>
+        <!-- The container where the nurpa text will appear -->
+        <div id="nurpa-display" class="nurpa-card">
+          <h4 id="nurpa-title" class="nurpa-title"></h4>
+          <p id="nurpa-text" class="nurpa-text"></p>
         </div>
 
         <div id="nurpa-container" class="nurpa-grid">
@@ -311,7 +311,7 @@
     </main>
 
     <script>
-        let sutraDatabase = [];
+        let nurpaDatabase = [];
 
         // Nannool Data Structure
         // Based on standard 462 count.
@@ -349,7 +349,7 @@
             }
         ];
 
-        const MAX_SUTRA = nannoolData[2].iyals[4].end; // 462
+        const MAX_NURPA = nannoolData[2].iyals[4].end; // 462
 
         const athikaramSelect = document.getElementById('athikaram-select');
         const iyalSelect = document.getElementById('iyal-select');
@@ -365,7 +365,7 @@
         let readerWindow = null;
 
         function executeSearch() {
-            const inputField = document.getElementById('sutra-search-input');
+            const inputField = document.getElementById('nurpa-search-input');
             const query = inputField.value.trim();
             const resultsContainer = document.getElementById('search-results-container');
             const resultsBody = document.getElementById('search-results-body');
@@ -377,7 +377,7 @@
             }
 
             // 1. Filter the database (Tamil text only, no safe-zone check)
-            const results = sutraDatabase.filter(s => {
+            const results = nurpaDatabase.filter(s => {
                 return s.text && s.text.includes(query);
             });
 
@@ -420,8 +420,8 @@
             fetch('nannool.json')
                 .then(response => response.json())
                 .then(data => {
-                    // Assuming your JSON has { "sutras": [...] }
-                    sutraDatabase = data.sutras;
+                    // Assuming your JSON has { "nurpas": [...] }
+                    nurpaDatabase = data.nurpas;
                     populateNurpas();
 
                     // Check URL for ?song_no=
@@ -429,11 +429,11 @@
                     const requestedSong = parseInt(urlParams.get('song_no'));
 
                     // If a valid number was passed, load it without triggering the popup
-                    if (requestedSong && requestedSong >= 1 && requestedSong <= MAX_SUTRA) {
+                    if (requestedSong && requestedSong >= 1 && requestedSong <= MAX_NURPA) {
                         loadNurpa(requestedSong, false);
                     }
                 })
-                .catch(error => console.error("Error loading sutra text:", error));
+                .catch(error => console.error("Error loading nurpa text:", error));
 
             nannoolData.forEach(athikaram => {
                 const option = document.createElement('option');
@@ -458,7 +458,7 @@
             });
 
             nextBtn.addEventListener('click', () => {
-                if (activeSongNo < MAX_SUTRA) loadNurpa(activeSongNo + 1);
+                if (activeSongNo < MAX_NURPA) loadNurpa(activeSongNo + 1);
             });
 
             changeAuthorBtn.addEventListener('click', () => {
@@ -469,14 +469,14 @@
 
             populateIyals(currentAthikaramId);
 
-            document.getElementById('sutra-search-input').addEventListener('keydown', function (e) {
+            document.getElementById('nurpa-search-input').addEventListener('keydown', function (e) {
                 if (e.key === 'Enter') {
                     executeSearch();
                 }
             });
         }
 
-        function findLocationOfSutra(songNo) {
+        function findLocationOfNurpa(songNo) {
             for (let a of nannoolData) {
                 for (let i = 0; i < a.iyals.length; i++) {
                     if (songNo >= a.iyals[i].start && songNo <= a.iyals[i].end) {
@@ -488,7 +488,7 @@
         }
 
         // Helper function to format the button/status text
-        function getLabelForSutra(songNo, athikaramId) {
+        function getLabelForNurpa(songNo, athikaramId) {
             return songNo.toString();
 
             /* If we ever want athikaram-wise number, we can enable the following.
@@ -536,15 +536,15 @@
             for (let i = currentIyal.start; i <= currentIyal.end; i++) {
                 const btn = document.createElement('button');
                 btn.className = 'nurpa-btn';
-                btn.textContent = getLabelForSutra(i, currentAthikaramId);
+                btn.textContent = getLabelForNurpa(i, currentAthikaramId);
                 btn.dataset.songNo = i;
 
                 // Add native browser tooltip on hover
-                if (typeof sutraDatabase !== 'undefined' && sutraDatabase.length > 0) {
-                    const sutraObj = sutraDatabase.find(s => s.number === i);
-                    if (sutraObj) {
+                if (typeof nurpaDatabase !== 'undefined' && nurpaDatabase.length > 0) {
+                    const nurpaObj = nurpaDatabase.find(s => s.number === i);
+                    if (nurpaObj) {
                         // Combines title and text with a line break for a clean preview
-                        btn.title = sutraObj.title ? `${sutraObj.title}\n\n${sutraObj.text}` : sutraObj.text;
+                        btn.title = nurpaObj.title ? `${nurpaObj.title}\n\n${nurpaObj.text}` : nurpaObj.text;
                     }
                 }
 
@@ -560,7 +560,7 @@
             activeSongNo = songNo;
 
             // 1. Update Dropdowns and Button Highlights (Existing logic)
-            const loc = findLocationOfSutra(songNo);
+            const loc = findLocationOfNurpa(songNo);
             if (loc) {
                 let dropdownsChanged = false;
 
@@ -592,17 +592,17 @@
             }
 
             // 2. Inject the JSON text into the card
-            if (typeof sutraDatabase !== 'undefined' && sutraDatabase.length > 0) {
-                const sutraObj = sutraDatabase.find(s => s.number === songNo);
-                if (sutraObj) {
+            if (typeof nurpaDatabase !== 'undefined' && nurpaDatabase.length > 0) {
+                const nurpaObj = nurpaDatabase.find(s => s.number === songNo);
+                if (nurpaObj) {
                     // Update the title and text
-                    document.getElementById('sutra-title').textContent = sutraObj.title || "";
-                    document.getElementById('sutra-text').textContent = sutraObj.text;
+                    document.getElementById('nurpa-title').textContent = nurpaObj.title || "";
+                    document.getElementById('nurpa-text').textContent = nurpaObj.text;
                     // Make the card visible
-                    document.getElementById('sutra-display').style.display = 'block';
+                    document.getElementById('nurpa-display').style.display = 'block';
                 } else {
-                    // Hide the box if the sutra isn't in the JSON (defensive code)
-                    document.getElementById('sutra-display').style.display = 'none';
+                    // Hide the box if the nurpa isn't in the JSON (defensive code)
+                    document.getElementById('nurpa-display').style.display = 'none';
                 }
             }
 
@@ -614,7 +614,7 @@
     </a>`;
 
             prevBtn.disabled = (songNo <= 1);
-            nextBtn.disabled = (songNo >= MAX_SUTRA);
+            nextBtn.disabled = (songNo >= MAX_NURPA);
 
             // 4. Trigger the Companion Tab
             if (openTab) {

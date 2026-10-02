@@ -124,7 +124,7 @@ const tamilOrder = [
     "ப", "ம", "ய", "ர", "ல", "வ", "ழ", "ள", "ற", "ன"
 ];
 
-const SUTRA_BASE =
+const URAI_PAGE_BASE =
     "https://sundararajana.github.io/nannool/?song_no=";
 
 let nurpas = [];
@@ -158,8 +158,8 @@ fetch("concordance.json")
     });
 
 
-function getSutraText(global_noorpa) {
-    return nurpas[global_noorpa - 1];
+function getNurpaText(global_nurpa) {
+    return nurpas[global_nurpa - 1];
 }
 
 
@@ -218,8 +218,8 @@ function showOccurrences(word) {
         const link = document.createElement("a");
 
         link.href =
-            SUTRA_BASE +
-            encodeURIComponent(occurrence.global_noorpa);
+            URAI_PAGE_BASE +
+            encodeURIComponent(occurrence.global_nurpa);
 
         link.target = "_blank";
 
@@ -227,7 +227,7 @@ function showOccurrences(word) {
         location.className = "location";
 
         location.innerHTML =
-            `<span class="global-number">${escapeHtml(occurrence.global_noorpa)}</span>` +
+            `<span class="global-number">${escapeHtml(occurrence.global_nurpa)}</span>` +
             ` · ${escapeHtml(occurrence.adhikaaram)}` +
             ` · ${escapeHtml(occurrence.iyal_name)}` +
             ` · ${escapeHtml(occurrence.title)}`;
@@ -238,9 +238,9 @@ function showOccurrences(word) {
         kwic.className = "kwic";
 
         kwic.innerHTML = makeKwic(
-            getSutraText(occurrence.global_noorpa),
+            getNurpaText(occurrence.global_nurpa),
             word,
-            occurrence.paadal_position
+            occurrence.nurpa_position
         );
 
         link.appendChild(kwic);
