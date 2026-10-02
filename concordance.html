@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+
+<html lang="ta">
+<head>
+<meta charset="UTF-8">
+<title>நன்னூல் தொடரடைவு</title>
+
+<style>
+    body {
+        font-family: system-ui, sans-serif;
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 2rem;
+        line-height: 1.7;
+    }
+
+    h1 {
+        margin-bottom: 0.5rem;
+    }
+
+    button {
+        margin: 0.2rem;
+        padding: 0.35rem 0.6rem;
+        cursor: pointer;
+    }
+
+    button.active {
+        font-weight: bold;
+    }
+
+    .word {
+        display: block;
+        margin: 0.15rem 0;
+        padding: 0;
+        border: 0;
+        background: none;
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+    }
+
+    #words {
+        column-width: 14rem;
+        column-gap: 3rem;
+    }
+
+    .word {
+        break-inside: avoid;
+    }
+
+    .word-count {
+        color: #666;
+        margin-left: 0.5rem;
+    }
+
+    .occurrence {
+        padding: 0.8rem 0;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .location {
+        margin-bottom: 0.4rem;
+        font-size: 0.9rem;
+        color: #555;
+    }
+
+    .global-number {
+        font-weight: bold;
+        margin-right: 0.3rem;
+    }
+
+    .kwic {
+        margin: 0.5rem 0;
+        font-family: serif;
+        font-size: 1.05rem;
+    }
+
+    .kwic mark {
+        background: #fff3a3;
+        font-weight: bold;
+    }
+
+    .text {
+        font-family: serif;
+    }
+
+    a {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+</head>
+
+<body>
+
+<h1>நன்னூல் தொடரடைவு</h1>
+
+<div id="stats"></div>
+
+<div id="initials"></div>
+
+<hr>
+
+<div id="words"></div>
+
+<hr>
+
+<div id="occurrences"></div>
+
+<script>
+const tamilOrder = [
+    "அ", "ஆ", "இ", "ஈ", "உ", "ஊ", "எ", "ஏ", "ஐ",
+    "ஒ", "ஓ", "ஔ",
+    "க", "ங", "ச", "ஞ", "ட", "ண", "த", "ந",
+    "ப", "ம", "ய", "ர", "ல", "வ", "ழ", "ள", "ற", "ன"
+];
+
+const SUTRA_BASE =
+    "https://sundararajana.github.io/nannool/?song_no=";
+
+let nurpas = [];
+let concordance = {};
+
+fetch("concordance.json")
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Failed to load concordance.json");
+        }
+        return response.json();
+    })
+    .then(data => {
+        nurpas = data.nurpas;
+        concordance = data.concordance;
+
+        const wordCount = Object.keys(concordance).length;
+        const occurrenceCount =
+            Object.values(concordance)
+                .reduce((sum, occurrences) => sum + occurrences.length, 0);
+
+        document.getElementById("stats").textContent =
+            `${wordCount} சொற்கள் · ${occurrenceCount} occurrences`;
+
+        showInitials();
+    })
+    .catch(error => {
+        console.error(error);
+        document.getElementById("stats").textContent =
+            "தொடரடைவுத் தரவை ஏற்ற முடியவில்லை.";
+    });
+
+
+function getSutraText(global_noorpa) {
+    return nurpas[global_noorpa - 1];
+}
+
+
+function showInitials() {
+    const container = document.getElementById("initials");
+    container.innerHTML = "";
+
+    for (const initial of tamilOrder) {
+        const button = document.createElement("button");
+        button.textContent = initial;
+
+        button.onclick = () => {
+            showWords(initial);
+            document.getElementById("occurrences").innerHTML = "";
+        };
+
+        container.appendChild(button);
+    }
+}
+
+
+function showWords(initial) {
+    const container = document.getElementById("words");
+    container.innerHTML = "";
+
+    const words = Object.keys(concordance)
+        .filter(word => word.startsWith(initial))
+        .sort((a, b) => a.localeCompare(b, "ta"));
+
+    for (const word of words) {
+        const button = document.createElement("button");
+        button.className = "word";
+
+        button.innerHTML =
+            `${escapeHtml(word)} <span class="word-count">(${concordance[word].length})</span>`;
+
+        button.onclick = () => {
+            showOccurrences(word);
+        };
+
+        container.appendChild(button);
+    }
+}
+
+
+function showOccurrences(word) {
+    const container = document.getElementById("occurrences");
+    container.innerHTML = "";
+
+    const occurrences = concordance[word];
+
+    for (const occurrence of occurrences) {
+        const div = document.createElement("div");
+        div.className = "occurrence";
+
+        const link = document.createElement("a");
+
+        link.href =
+            SUTRA_BASE +
+            encodeURIComponent(occurrence.global_noorpa);
+
+        link.target = "_blank";
+
+        const location = document.createElement("div");
+        location.className = "location";
+
+        location.innerHTML =
+            `<span class="global-number">${escapeHtml(occurrence.global_noorpa)}</span>` +
+            ` · ${escapeHtml(occurrence.adhikaaram)}` +
+            ` · ${escapeHtml(occurrence.iyal_name)}` +
+            ` · ${escapeHtml(occurrence.title)}`;
+
+        link.appendChild(location);
+
+        const kwic = document.createElement("div");
+        kwic.className = "kwic";
+
+        kwic.innerHTML = makeKwic(
+            getSutraText(occurrence.global_noorpa),
+            word,
+            occurrence.paadal_position
+        );
+
+        link.appendChild(kwic);
+
+        div.appendChild(link);
+        container.appendChild(div);
+    }
+
+    document.getElementById("occurrences").scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+}
+
+
+function makeKwic(text, word, position) {
+    if (typeof text !== "string") {
+        return "";
+    }
+
+    if (!Number.isInteger(position)) {
+        return escapeHtml(text);
+    }
+
+    const words = tokenize(text);
+
+    if (position < 0 || position >= words.length) {
+        return escapeHtml(text);
+    }
+
+    const context = 5;
+
+    const start = Math.max(0, position - context);
+    const end = Math.min(words.length, position + context + 1);
+
+    const before = words.slice(start, position).join(" ");
+    const matched = words[position];
+    const after = words.slice(position + 1, end).join(" ");
+
+    return (
+        `${start > 0 ? "... " : ""}` +
+        `${escapeHtml(before)} ` +
+        `<mark>${escapeHtml(matched)}</mark>` +
+        `${after ? " " + escapeHtml(after) : ""}` +
+        `${end < words.length ? " ..." : ""}`
+    );
+}
+
+
+function tokenize(text) {
+    return text.normalize("NFC")
+        .match(/[\u0B80-\u0BFF]+/g) || [];
+}
+
+
+function escapeHtml(text) {
+    return String(text ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+}
+</script>
+
+</body>
+</html>
