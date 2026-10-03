@@ -199,6 +199,19 @@
             margin: 0;
             white-space: pre-wrap; /* This makes the \n in your JSON render as actual line breaks! */
         }
+
+        .tamilvu-iframe-wrapper {
+            width: 100%;
+        }
+
+        .tamilvu-iframe-wrapper iframe {
+            display: block;
+            width: 100%;
+            height: 350px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
     </style>
 </head>
 <body>
@@ -263,7 +276,7 @@
           <h4 id="nurpa-title" class="nurpa-title"></h4>
           <p id="nurpa-text" class="nurpa-text"></p>
           <hr>
-          <div id="tamilvu-iframe-container" class="tamilvu-iframe-wrapper" style="width: 100%"></div>
+          <div id="tamilvu-iframe-container" class="tamilvu-iframe-wrapper"></div>
         </div>
 
         <div id="nurpa-container" class="nurpa-grid">
@@ -590,7 +603,7 @@
                     // Build and inject the TamilVU inline iframe dynamically
                     const iframeUrl = `https://www.tamilvu.org/slet/l0100/l0100pd1.jsp?bookid=6&auth_pub_id=15&pno=${songNo}`;
                     document.getElementById('tamilvu-iframe-container').innerHTML = `
-                        <iframe src="${iframeUrl}" style="width: 100%; height: 350px; border: 1px solid #ccc; border-radius: 4px;"></iframe>
+                        <iframe src="${iframeUrl}" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
                     `;
                 } else {
                     // Hide the box if the nurpa isn't in the JSON (defensive code)
