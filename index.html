@@ -134,19 +134,6 @@
             margin: 0 auto;
         }
 
-        .info-banner {
-            background-color: #ECFDF5;
-            border: 1px solid #A7F3D0;
-            color: #047857;
-            padding: 12px 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 0.9rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
         .status-text {
             font-weight: 600;
             color: var(--text-main);
@@ -235,7 +222,7 @@
         <div class="actions-group">
             <button id="prev-btn" class="nav-btn" disabled>&larr; முந்தையது</button>
             <button id="next-btn" class="nav-btn" disabled>அடுத்தது &rarr;</button>
-            <button id="change-author-btn" class="author-btn">உரையாசிரியரை மாற்று</button>
+            <button id="change-author-btn" class="author-btn">உரையாசிரியரை மாற்று ↗</button>
         </div>
     </header>
 
@@ -269,16 +256,14 @@
             </div>
         </div>
 
-        <div class="info-banner">
-            <span><strong>இணைப்புத் திரை முறை:</strong> நூற்பா எண்களை அழுத்தினால், உரை விளக்கங்கள் தனியொரு புதிய திரையில் (New Tab) திறக்கப்படும்.</span>
-        </div>
-
         <div id="current-selection-text" class="status-text">நூற்பாவைத் தேர்ந்தெடுக்கவும்...</div>
 
         <!-- The container where the nurpa text will appear -->
         <div id="nurpa-display" class="nurpa-card">
           <h4 id="nurpa-title" class="nurpa-title"></h4>
           <p id="nurpa-text" class="nurpa-text"></p>
+          <hr>
+          <div id="tamilvu-iframe-container" class="tamilvu-iframe-wrapper" style="width: 100%"></div>
         </div>
 
         <div id="nurpa-container" class="nurpa-grid">
@@ -462,7 +447,7 @@
             });
 
             changeAuthorBtn.addEventListener('click', () => {
-                alert("தமிழ் இணையக் கல்விக்கழகத்தின் முதன்மைப் பக்கம் புதிய திரையில் திறக்கப்படும். அங்கு ஒரு நூற்பாவைச் சொடுக்கி, உங்கள் புதிய உரையாசிரியரைத் தேர்ந்தெடுத்த பின், இங்கு திரும்பி தொடர்ந்து படிக்கலாம்.");
+                alert("தமிழ் இணையக் கல்விக்கழகத்தின் முதன்மைப் பக்கம் புதிய திரையில் திறக்கப்படும். அங்கு உரையாசிரியரைத் தேர்ந்தெடுத்தலாம்.");
                 // Updated book_id=6 for Nannool
                 window.open("https://www.tamilvu.org/library/l0900/html/l0900ind.htm?book_id=6", "NannoolReader");
             });
@@ -556,7 +541,7 @@
             }
         }
 
-        function loadNurpa(songNo, openTab = true) {
+        function loadNurpa(songNo, openTab = false) {
             activeSongNo = songNo;
 
             // 1. Update Dropdowns and Button Highlights (Existing logic)
@@ -600,6 +585,13 @@
                     document.getElementById('nurpa-text').textContent = nurpaObj.text;
                     // Make the card visible
                     document.getElementById('nurpa-display').style.display = 'block';
+
+
+                    // Build and inject the TamilVU inline iframe dynamically
+                    const iframeUrl = `https://www.tamilvu.org/slet/l0100/l0100pd1.jsp?bookid=6&auth_pub_id=15&pno=${songNo}`;
+                    document.getElementById('tamilvu-iframe-container').innerHTML = `
+                        <iframe src="${iframeUrl}" style="width: 100%; height: 350px; border: 1px solid #ccc; border-radius: 4px;"></iframe>
+                    `;
                 } else {
                     // Hide the box if the nurpa isn't in the JSON (defensive code)
                     document.getElementById('nurpa-display').style.display = 'none';
@@ -610,7 +602,7 @@
             currentSelectionText.innerHTML = `தேர்ந்தெடுக்கப்பட்ட நூற்பா: <strong>${songNo}</strong>
     <a href="#" onclick="openTamilVuPopup(${songNo}, ${currentAthikaramId}); return false;"
        style="margin-left: 15px; color: var(--primary); font-weight: 600; text-decoration: none; border: 1px solid var(--primary); padding: 4px 10px; border-radius: 6px; background-color: #ECFDF5; display: inline-block; font-size: 0.9rem;">
-       உரையைத் திறக்க ↗
+       தமிழ் இணையக் கல்விக்கழக தளத்தில் உரையை படிக்க ↗
     </a>`;
 
             prevBtn.disabled = (songNo <= 1);
