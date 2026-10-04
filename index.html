@@ -380,7 +380,9 @@
         let currentAthikaramId = nannoolData[0].id;
         let currentIyal = nannoolData[0].iyals[0];
         let activeSongNo = null;
-        let readerWindow = null;
+        let tamilvuReaderWindow = null;
+        let cictReaderWindow = null;
+
 
         function executeSearch() {
             const inputField = document.getElementById('nurpa-search-input');
@@ -551,21 +553,21 @@
         function openTamilvu(songNo, athikaramId) {
             const targetUrl = `https://www.tamilvu.org/slet/l0900/l0900uri.jsp?song_no=${songNo}&book_id=6&head_id=${athikaramId}`;
 
-            if (!readerWindow || readerWindow.closed) {
-                readerWindow = window.open(targetUrl, "TamilvuNannoolReader");
+            if (!tamilvuReaderWindow || tamilvuReaderWindow.closed) {
+                tamilvuReaderWindow = window.open(targetUrl, "TamilvuNannoolReader");
             } else {
-                readerWindow.location.href = targetUrl;
-                readerWindow.focus();
+                tamilvuReaderWindow.location.href = targetUrl;
+                tamilvuReaderWindow.focus();
             }
         }
 
         function openCICT(songNo, athikaramId) {
             const targetUrl = `https://cictdl.github.io/Nannul-of-Pavananti-Munivar/#n=${songNo}`;
-            if (!readerWindow || readerWindow.closed) {
-                readerWindow = window.open(targetUrl, "CICTNannoolReader");
+            if (!cictReaderWindow || cictReaderWindow.closed) {
+                cictReaderWindow = window.open(targetUrl, "CICTNannoolReader");
             } else {
-                readerWindow.location.href = targetUrl;
-                readerWindow.focus();
+                cictReaderWindow.location.href = targetUrl;
+                cictReaderWindow.focus();
             }
         }
 
