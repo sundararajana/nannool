@@ -548,11 +548,21 @@
             if (autoLoadNurpas) populateNurpas();
         }
 
-        function openTamilVuPopup(songNo, athikaramId) {
+        function openTamilvu(songNo, athikaramId) {
             const targetUrl = `https://www.tamilvu.org/slet/l0900/l0900uri.jsp?song_no=${songNo}&book_id=6&head_id=${athikaramId}`;
 
             if (!readerWindow || readerWindow.closed) {
-                readerWindow = window.open(targetUrl, "NannoolReader");
+                readerWindow = window.open(targetUrl, "TamilvuNannoolReader");
+            } else {
+                readerWindow.location.href = targetUrl;
+                readerWindow.focus();
+            }
+        }
+
+        function openCICT(songNo, athikaramId) {
+            const targetUrl = `https://cictdl.github.io/Nannul-of-Pavananti-Munivar/#n=${songNo}`;
+            if (!readerWindow || readerWindow.closed) {
+                readerWindow = window.open(targetUrl, "CICTNannoolReader");
             } else {
                 readerWindow.location.href = targetUrl;
                 readerWindow.focus();
@@ -652,17 +662,22 @@
             currentSelectionText.innerHTML = `
             <button id="close-nurpa-display" onClick = "closeNurpaDisplay()">&times;</button>
             தேர்ந்தெடுக்கப்பட்ட நூற்பா: <strong>${songNo}</strong>
-            <a href="#" onclick="openTamilVuPopup(${songNo}, ${currentAthikaramId}); return false;"
+            <a href="#" onclick="openCICT(${songNo}, ${currentAthikaramId}); return false;"
+            style="margin-left: 15px; color: var(--primary); font-weight: 600; text-decoration: none; border: 1px solid var(--primary); padding: 4px 10px; border-radius: 6px; background-color: #ECFDF5; display: inline-block; font-size: 0.9rem;">
+                செம்மொழித் தமிழாய்வு மத்திய நிறுவன தளத்தில் உரையை படிக்க ↗
+            </a>
+            <a href="#" onclick="openTamilvu(${songNo}, ${currentAthikaramId}); return false;"
             style="margin-left: 15px; color: var(--primary); font-weight: 600; text-decoration: none; border: 1px solid var(--primary); padding: 4px 10px; border-radius: 6px; background-color: #ECFDF5; display: inline-block; font-size: 0.9rem;">
                 தமிழ் இணையக் கல்விக்கழக தளத்தில் உரையை படிக்க ↗
-            </a>`;
+            </a>
+            `;
 
             prevBtn.disabled = (songNo <= 1);
             nextBtn.disabled = (songNo >= MAX_NURPA);
 
             // 4. Trigger the Companion Tab
             if (openTab) {
-               openTamilVuPopup(songNo, currentAthikaramId);
+               openTamilvu(songNo, currentAthikaramId);
             }
         }
 
