@@ -1,6 +1,6 @@
 # nanool
 
-A simple interface for navigating Nannool nūrpas.
+A simple interface to navigate, search, read explanations of Nannool nūrpas.
 
 ## UI
 
