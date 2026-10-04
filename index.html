@@ -197,7 +197,16 @@
             line-height: 1.8;
             color: var(--text-main);
             margin: 0;
-            white-space: pre-wrap; /* This makes the \n in your JSON render as actual line breaks! */
+            white-space: pre-wrap; /* This makes the \n in JSON render as actual line breaks! */
+        }
+
+        .nurpa-word-split-text {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: var(--text-main);
+            margin: 0;
+            border-top: 2px solid #333333;
+            white-space: pre-wrap; /* This makes the \n in JSON render as actual line breaks! */
         }
 
         .tamilvu-iframe-wrapper {
@@ -275,7 +284,7 @@
         <div id="nurpa-display" class="nurpa-card">
           <h4 id="nurpa-title" class="nurpa-title"></h4>
           <p id="nurpa-text" class="nurpa-text"></p>
-          <hr>
+          <p id="nurpa-word-split-text" class="nurpa-word-split-text"></p>
           <div id="tamilvu-iframe-container" class="tamilvu-iframe-wrapper"></div>
         </div>
 
@@ -314,7 +323,7 @@
         // Nannool Data Structure
         // Based on standard 462 count.
         // Note on 'id': TamilVU uses head_id. URL showed head_id=10 for Eluthu.
-        // I have set Payiram to 9, Eluthu to 10, Sol to 11. If they fail, you can tweak them!
+        // I have set Payiram to 9, Eluthu to 10, Sol to 11. If they fail, we can tweak them!
         const nannoolData = [
             {
                 id: 9,
@@ -418,7 +427,6 @@
             fetch('nannool.json')
                 .then(response => response.json())
                 .then(data => {
-                    // Assuming your JSON has { "nurpas": [...] }
                     nurpaDatabase = data.nurpas;
                     populateNurpas();
 
@@ -432,6 +440,18 @@
                     }
                 })
                 .catch(error => console.error("Error loading nurpa text:", error));
+
+            // Fetch the CICT clean word-split nurpas JSON file
+            fetch('nannool-cict-mulam.json')
+                .then(response => response.json())
+                .then(data => {
+                    nurpaDatabase = nurpaDatabase.map((obj, index) => ({
+                        ...obj,
+                        // skip the first sirappu payiram nurpa in CICT data
+                        "cict_word_split_nurpa": data[index + 1]
+                    }));
+                })
+                .catch(error => console.error("Error loading word split nurpa text:", error));
 
             nannoolData.forEach(athikaram => {
                 const option = document.createElement('option');
@@ -601,6 +621,7 @@
                     // Update the title and text
                     document.getElementById('nurpa-title').textContent = nurpaObj.title || "";
                     document.getElementById('nurpa-text').textContent = nurpaObj.text;
+                    document.getElementById('nurpa-word-split-text').textContent = nurpaObj.cict_word_split_nurpa;
                     // Make the card visible
                     document.getElementById('nurpa-display').style.display = 'block';
 
