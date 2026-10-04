@@ -299,13 +299,14 @@
 
         <div id="current-selection-text" class="status-text">நூற்பாவைத் தேர்ந்தெடுக்கவும்...</div>
 
-        <a href="#" id="cict-nurpa-link" style="display:none" class="external-nurpa-link" onclick="openCICT(); return false;">
+        <div id="external-nurpa-links" style="margin-bottom: 20px;">
+            <a href="#" id="cict-nurpa-link" style="display:none" class="external-nurpa-link" onclick="openCICT(); return false;">
                 செம்மொழித் தமிழாய்வு மத்திய நிறுவன தளத்தில் உரையை படிக்க ↗
             </a>
-
-        <a href="#" id="tamilvu-nurpa-link" style="display:none" class="external-nurpa-link" onclick="openTamilvu(); return false;">
-            தமிழ் இணையக் கல்விக்கழக தளத்தில் உரையை படிக்க ↗
-        </a>
+            <a href="#" id="tamilvu-nurpa-link" style="display:none" class="external-nurpa-link" onclick="openTamilvu(); return false;">
+                தமிழ் இணையக் கல்விக்கழக தளத்தில் உரையை படிக்க ↗
+            </a>
+        </div>
 
         <!-- The container where the nurpa text will appear -->
         <div id="nurpa-display" class="nurpa-card">
