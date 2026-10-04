@@ -237,7 +237,7 @@
             border-radius: 6px;
             background-color: #ECFDF5;
             display: inline-block;
-            font-size: 0.9rem;   
+            font-size: 0.9rem;
         }
 
     </style>
@@ -298,6 +298,14 @@
         </div>
 
         <div id="current-selection-text" class="status-text">நூற்பாவைத் தேர்ந்தெடுக்கவும்...</div>
+
+        <a href="#" id="cict-nurpa-link" style="display:none" class="external-nurpa-link" onclick="openCICT(); return false;">
+                செம்மொழித் தமிழாய்வு மத்திய நிறுவன தளத்தில் உரையை படிக்க ↗
+            </a>
+
+        <a href="#" id="tamilvu-nurpa-link" style="display:none" class="external-nurpa-link" onclick="openTamilvu(); return false;">
+            தமிழ் இணையக் கல்விக்கழக தளத்தில் உரையை படிக்க ↗
+        </a>
 
         <!-- The container where the nurpa text will appear -->
         <div id="nurpa-display" class="nurpa-card">
@@ -389,14 +397,15 @@
         const prevBtn = document.getElementById('prev-btn');
         const nextBtn = document.getElementById('next-btn');
         const currentSelectionText = document.getElementById('current-selection-text');
+        const cictNurpaLink = document.getElementById('cict-nurpa-link');
+        const tamilvuNurpaLink = document.getElementById('tamilvu-nurpa-link');
         const changeAuthorBtn = document.getElementById('change-author-btn');
 
         let currentAthikaramId = nannoolData[0].id;
         let currentIyal = nannoolData[0].iyals[0];
         let activeSongNo = null;
-        let tamilvuReaderWindow = null;
         let cictReaderWindow = null;
-
+        let tamilvuReaderWindow = null;
 
         function executeSearch() {
             const inputField = document.getElementById('nurpa-search-input');
@@ -564,24 +573,24 @@
             if (autoLoadNurpas) populateNurpas();
         }
 
-        function openTamilvu(songNo, athikaramId) {
-            const targetUrl = `https://www.tamilvu.org/slet/l0900/l0900uri.jsp?song_no=${songNo}&book_id=6&head_id=${athikaramId}`;
+        function openCICT() {
+            const targetUrl = `https://cictdl.github.io/Nannul-of-Pavananti-Munivar/#n=${activeSongNo}`;
+            if (!cictReaderWindow || cictReaderWindow.closed) {
+                cictReaderWindow = window.open(targetUrl, "CICTNannoolReader");
+            } else {
+                cictReaderWindow.location.href = targetUrl;
+                cictReaderWindow.focus();
+            }
+        }
+
+        function openTamilvu() {
+            const targetUrl = `https://www.tamilvu.org/slet/l0900/l0900uri.jsp?song_no=${activeSongNo}&book_id=6&head_id=${currentAthikaramId}`;
 
             if (!tamilvuReaderWindow || tamilvuReaderWindow.closed) {
                 tamilvuReaderWindow = window.open(targetUrl, "TamilvuNannoolReader");
             } else {
                 tamilvuReaderWindow.location.href = targetUrl;
                 tamilvuReaderWindow.focus();
-            }
-        }
-
-        function openCICT(songNo, athikaramId) {
-            const targetUrl = `https://cictdl.github.io/Nannul-of-Pavananti-Munivar/#n=${songNo}`;
-            if (!cictReaderWindow || cictReaderWindow.closed) {
-                cictReaderWindow = window.open(targetUrl, "CICTNannoolReader");
-            } else {
-                cictReaderWindow.location.href = targetUrl;
-                cictReaderWindow.focus();
             }
         }
 
@@ -614,6 +623,8 @@
         function closeNurpaDisplay() {
             currentSelectionText.innerHTML = '';
             document.getElementById('nurpa-display').style.display = 'none';
+            cictNurpaLink.style.display = 'none';
+            tamilvuNurpaLink.style.display = 'none';
         }
 
         function loadNurpa(songNo, openTab = false) {
@@ -662,7 +673,6 @@
                     // Make the card visible
                     document.getElementById('nurpa-display').style.display = 'block';
 
-
                     // Build and inject the TamilVU inline iframe dynamically
                     const iframeUrl = `https://www.tamilvu.org/slet/l0100/l0100pd1.jsp?bookid=6&auth_pub_id=15&pno=${songNo}`;
                     document.getElementById('tamilvu-iframe-container').innerHTML = `
@@ -674,24 +684,20 @@
                 }
             }
 
-            // 3. Update the status text and next/prev buttons (Existing logic)
+            // 3. Update the external nurpa links, status text and next/prev buttons
+            cictNurpaLink.style.display = "inline-block";
+            tamilvuNurpaLink.style.display = "inline-block";
+
             currentSelectionText.innerHTML = `
             <button id="close-nurpa-display" onClick = "closeNurpaDisplay()">&times;</button>
-            தேர்ந்தெடுக்கப்பட்ட நூற்பா: <strong>${songNo}</strong>
-            <a href="#" class="external-nurpa-link" onclick="openCICT(${songNo}, ${currentAthikaramId}); return false;"
-                செம்மொழித் தமிழாய்வு மத்திய நிறுவன தளத்தில் உரையை படிக்க ↗
-            </a>
-            <a href="#" class="external-nurpa-link" onclick="openTamilvu(${songNo}, ${currentAthikaramId}); return false;">
-                தமிழ் இணையக் கல்விக்கழக தளத்தில் உரையை படிக்க ↗
-            </a>
-            `;
+            தேர்ந்தெடுக்கப்பட்ட நூற்பா: <strong>${songNo}</strong>`;
 
             prevBtn.disabled = (songNo <= 1);
             nextBtn.disabled = (songNo >= MAX_NURPA);
 
             // 4. Trigger the Companion Tab
             if (openTab) {
-               openTamilvu(songNo, currentAthikaramId);
+               openTamilvu();
             }
         }
 
