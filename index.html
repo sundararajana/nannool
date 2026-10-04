@@ -226,6 +226,20 @@
             text-decoration: none;
             font-weight: 500;
         }
+
+        .external-nurpa-link {
+            margin-left: 15px;
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+            border: 1px solid var(--primary);
+            padding: 4px 10px;
+            border-radius: 6px;
+            background-color: #ECFDF5;
+            display: inline-block;
+            font-size: 0.9rem;   
+        }
+
     </style>
 </head>
 <body>
@@ -664,12 +678,10 @@
             currentSelectionText.innerHTML = `
             <button id="close-nurpa-display" onClick = "closeNurpaDisplay()">&times;</button>
             தேர்ந்தெடுக்கப்பட்ட நூற்பா: <strong>${songNo}</strong>
-            <a href="#" onclick="openCICT(${songNo}, ${currentAthikaramId}); return false;"
-            style="margin-left: 15px; color: var(--primary); font-weight: 600; text-decoration: none; border: 1px solid var(--primary); padding: 4px 10px; border-radius: 6px; background-color: #ECFDF5; display: inline-block; font-size: 0.9rem;">
+            <a href="#" class="external-nurpa-link" onclick="openCICT(${songNo}, ${currentAthikaramId}); return false;"
                 செம்மொழித் தமிழாய்வு மத்திய நிறுவன தளத்தில் உரையை படிக்க ↗
             </a>
-            <a href="#" onclick="openTamilvu(${songNo}, ${currentAthikaramId}); return false;"
-            style="margin-left: 15px; color: var(--primary); font-weight: 600; text-decoration: none; border: 1px solid var(--primary); padding: 4px 10px; border-radius: 6px; background-color: #ECFDF5; display: inline-block; font-size: 0.9rem;">
+            <a href="#" class="external-nurpa-link" onclick="openTamilvu(${songNo}, ${currentAthikaramId}); return false;">
                 தமிழ் இணையக் கல்விக்கழக தளத்தில் உரையை படிக்க ↗
             </a>
             `;
