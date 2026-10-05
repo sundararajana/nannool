@@ -428,7 +428,7 @@
 
             // 1. Filter the database (Tamil text only, no safe-zone check)
             const results = nurpaDatabase.filter(s => {
-                return s.text && s.text.includes(query);
+                return s.cict_word_split_nurpa && s.cict_word_split_nurpa.includes(query);
             });
 
             // 2. Build the table rows
@@ -440,7 +440,7 @@
                 const highlightRegex = new RegExp(`(${query})`, 'gi');
 
                 results.forEach(s => {
-                    const highlightedText = s.text.replace(highlightRegex, '<mark style="background-color: #fef08a; border-radius: 2px; padding: 0 2px;">$1</mark>');
+                    const highlightedText = s.cict_word_split_nurpa.replace(highlightRegex, '<mark style="background-color: #fef08a; border-radius: 2px; padding: 0 2px;">$1</mark>');
 
                     const row = `
                         <tr style="border-bottom: 1px solid #e2e8f0; transition: background-color 0.2s;">
