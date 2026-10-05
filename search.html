@@ -1,0 +1,223 @@
+<!doctype html>
+
+<html lang="ta">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>நன்னூல் — பொருண்மைத் தேடல் (Semantic Search)</title>
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont,
+                   "Segoe UI", "Noto Sans Tamil", sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+
+    .search {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    input {
+      flex: 1;
+      font: inherit;
+      padding: 0.6rem;
+    }
+
+    button {
+      font: inherit;
+      padding: 0.6rem 1rem;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      cursor: wait;
+      opacity: 0.6;
+    }
+
+    #status {
+      color: #666;
+      margin-bottom: 1rem;
+    }
+
+    .result {
+      border-top: 1px solid #ddd;
+      padding: 1rem 0;
+    }
+
+    .result a {
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .result a:hover {
+      text-decoration: underline;
+    }
+
+    .score {
+      color: #777;
+      font-size: 0.9rem;
+      margin-left: 0.5rem;
+    }
+
+    .text {
+      margin-top: 0.25rem;
+    }
+  </style>
+
+</head>
+
+<body>
+
+<h1>நன்னூல் — பொருண்மைத் தேடல் (Semantic Search)</h1>
+
+<div>
+    <span><strong><a href="index.html" target="_blank">நன்னூல் உரை தேடி 🔙</a></strong></span>
+</div>
+
+<div class="search">
+  <input id="query"
+         type="search"
+         placeholder="தேடுக..."
+         autocomplete="off">
+  <button id="searchButton" disabled>தேடு</button>
+</div>
+
+<div id="status">Loading...</div>
+<div id="results"></div>
+
+<script type="module">
+  import { pipeline } from
+    "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.0";
+
+  const queryInput = document.getElementById("query");
+  const searchButton = document.getElementById("searchButton");
+  const status = document.getElementById("status");
+  const results = document.getElementById("results");
+
+  let data;
+  let extractor;
+
+  function dot(a, b) {
+    let sum = 0;
+
+    for (let i = 0; i < a.length; i++) {
+      sum += a[i] * b[i];
+    }
+
+    return sum;
+  }
+
+  function escapeHtml(value) {
+    return value
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#39;");
+  }
+
+  async function initialise() {
+    status.textContent = "Loading Nannool embeddings...";
+
+    const response =
+      await fetch("nannool_with_embeddings.json");
+
+    if (!response.ok) {
+      throw new Error(
+        `Could not load nannool_with_embeddings.json: ${response.status}`
+      );
+    }
+
+    data = await response.json();
+
+    status.textContent = "Loading semantic search model...";
+
+    extractor = await pipeline(
+      "feature-extraction",
+      "Xenova/multilingual-e5-small"
+    );
+
+    status.textContent = "Ready.";
+    searchButton.disabled = false;
+    queryInput.focus();
+  }
+
+  async function search() {
+    const query = queryInput.value.trim();
+
+    if (!query) {
+      results.innerHTML = "";
+      return;
+    }
+
+    searchButton.disabled = true;
+    status.textContent = "Searching...";
+    results.innerHTML = "";
+
+    try {
+      const output = await extractor(
+        `query: ${query}`,
+        {
+          pooling: "mean",
+          normalize: true
+        }
+      );
+
+      const queryVector = Array.from(output.data);
+
+      const ranked = data
+        .map(item => ({
+          item,
+          score: dot(queryVector, item.embedding)
+        }))
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 5);
+
+      results.innerHTML = ranked.map(({ item, score }) => {
+        const songNo = item.id;
+
+        return `
+          <div class="result">
+            <a href="index.html?song_no=${encodeURIComponent(songNo)}" target="_blank">
+              ${escapeHtml(String(songNo))}
+            </a>
+            <span class="score">${(score *100).toFixed(2)} %</span>
+            <div class="text">${escapeHtml(item.text)}</div>
+          </div>
+        `;
+      }).join("");
+
+      status.textContent = `Top ${ranked.length} results`;
+    }
+    catch (error) {
+      console.error(error);
+      status.textContent = "Search failed.";
+      results.textContent = error.message;
+    }
+    finally {
+      searchButton.disabled = false;
+    }
+  }
+
+  searchButton.addEventListener("click", search);
+
+  queryInput.addEventListener("keydown", event => {
+    if (event.key === "Enter" && !searchButton.disabled) {
+      search();
+    }
+  });
+
+  initialise().catch(error => {
+    console.error(error);
+    status.textContent = "Failed to initialise.";
+    results.textContent = error.message;
+  });
+</script>
+
+</body>
+</html>

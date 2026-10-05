@@ -1,0 +1,24 @@
+{
+  "name": "nannool",
+  "version": "1.0.0",
+  "description": "A simple interface to navigate, search, read explanations of Nannool nūrpas.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sundararajana/nannool.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/sundararajana/nannool/issues"
+  },
+  "homepage": "https://github.com/sundararajana/nannool#readme",
+  "dependencies": {
+    "@huggingface/transformers": "^4.3.0"
+  }
+}
