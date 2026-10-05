@@ -49,13 +49,15 @@ async function forEachNurpa(jsonData, callback) {
     if (viruttiyurai?.nutalitru_enin != null && viruttiyurai.nutalitru_enin !== "") {
       fields.push(String(viruttiyurai.nutalitru_enin));
     }
+    if (viruttiyurai?.gloss_ils != null && viruttiyurai.gloss_ils !== "") {
+      fields.push(String(viruttiyurai.gloss_ils));
+    }
     if (viruttiyurai?.expansion != null && viruttiyurai.expansion !== "") {
       fields.push(String(viruttiyurai.expansion));
     }
 
     // Join collected fields with '\n'
     const fullText = fields.join("\n");
-  
     await callback(item.mulam, fullText);
   }
 }
