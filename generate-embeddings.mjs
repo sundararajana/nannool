@@ -9,10 +9,17 @@ const output_json = './nannool_with_embeddings.json';
 
 // This function calls callback for each Nurpa from
 // nannool CICT data. Callback receives nurpaText
-// and extended text content (nurpa text, variants, urais..)
+// and extended text content (atikaram, iyal, nurpa text
+// nurpa variants, urai explanations from two authors).
 async function forEachNurpa(jsonData, callback) {
   for (const item of jsonData) {
     const fields = [];
+    // Extract 'atikaram' (top-level)
+    fields.push(String(item.atikaram));
+
+    // Extract 'iyal' (top-level)
+    fields.push(String(item.iyal));
+
     // Extract 'mulam' (top-level)
     fields.push(String(item.mulam));
 
@@ -42,8 +49,10 @@ async function forEachNurpa(jsonData, callback) {
     if (viruttiyurai?.expansion != null && viruttiyurai.expansion !== "") {
       fields.push(String(viruttiyurai.expansion));
     }
+
     // Join collected fields with '\n'
     const fullText = fields.join("\n");
+  
     await callback(item.mulam, fullText);
   }
 }
