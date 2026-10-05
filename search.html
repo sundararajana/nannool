@@ -94,6 +94,8 @@
   import { pipeline } from
     "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.0";
 
+  // the number of top N results to display
+  const TOP_N_RESULTS = 10;
   const queryInput = document.getElementById("query");
   const searchButton = document.getElementById("searchButton");
   const status = document.getElementById("status");
@@ -176,7 +178,7 @@
           score: dot(queryVector, item.embedding)
         }))
         .sort((a, b) => b.score - a.score)
-        .slice(0, 5);
+        .slice(0, TOP_N_RESULTS);
 
       results.innerHTML = ranked.map(({ item, score }) => {
         const songNo = item.id;
