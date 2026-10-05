@@ -14,11 +14,14 @@ const output_json = './nannool_with_embeddings.json';
 async function forEachNurpa(jsonData, callback) {
   for (const item of jsonData) {
     const fields = [];
+
+    // Not adding atikaram and iyal to avoid accidental
+    // similarity match just because these two match!
     // Extract 'atikaram' (top-level)
-    fields.push(String(item.atikaram));
+    // fields.push(String(item.atikaram));
 
     // Extract 'iyal' (top-level)
-    fields.push(String(item.iyal));
+    // fields.push(String(item.iyal));
 
     // Extract 'mulam' (top-level)
     fields.push(String(item.mulam));
