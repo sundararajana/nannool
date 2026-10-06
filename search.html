@@ -189,7 +189,7 @@
             <a style="color: var(--primary);" href="index.html?song_no=${encodeURIComponent(songNo)}" target="_blank">
               ${escapeHtml(String(songNo))}
             </a>
-            <span class="score">${(score *100).toFixed(2)} %</span>
+            <span class="score">Similarity: ${(score).toFixed(2)}</span>
             <div class="text">${escapeHtml(item.text)}</div>
           </div>
         `;
