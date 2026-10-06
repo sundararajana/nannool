@@ -433,35 +433,30 @@
         }
 
         function init() {
-            // Fetch the JSON file
-            fetch('nannool.json')
-                .then(response => response.json())
-                .then(data => {
-                    nurpaDatabase = data.nurpas;
-                    populateNurpas();
+            Promise.all([
+                // Fetch the nannool JSON file
+                fetch('nannool.json').then(response => response.json()),
+                // Fetch the CICT clean word-split nurpas JSON file
+                fetch('nannool-cict-mulam.json').then(response => response.json())
+            ])
+            .then(([nurpaData, cictData]) => {
+                nurpaDatabase = nurpaData.nurpas.map((obj, index) => ({
+                    ...obj,
+                    // skip the first sirappu payiram nurpa in CICT data
+                    "cict_word_split_nurpa": cictData[index + 1]
+                }));
 
-                    // Check URL for ?song_no=
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const requestedSong = parseInt(urlParams.get('song_no'));
+                populateNurpas();
 
-                    // If a valid number was passed, load it without triggering the popup
-                    if (requestedSong && requestedSong >= 1 && requestedSong <= MAX_NURPA) {
-                        loadNurpa(requestedSong, false);
-                    }
-                })
-                .catch(error => console.error("Error loading nurpa text:", error));
+                // Check URL for ?song_no=
+                const urlParams = new URLSearchParams(window.location.search);
+                const requestedSong = parseInt(urlParams.get('song_no'));
 
-            // Fetch the CICT clean word-split nurpas JSON file
-            fetch('nannool-cict-mulam.json')
-                .then(response => response.json())
-                .then(data => {
-                    nurpaDatabase = nurpaDatabase.map((obj, index) => ({
-                        ...obj,
-                        // skip the first sirappu payiram nurpa in CICT data
-                        "cict_word_split_nurpa": data[index + 1]
-                    }));
-                })
-                .catch(error => console.error("Error loading word split nurpa text:", error));
+                if (requestedSong && requestedSong >= 1 && requestedSong <= MAX_NURPA) {
+                    loadNurpa(requestedSong, false);
+                }
+            })
+            .catch(error => console.error("Error loading nurpa data:", error));
 
             nannoolData.forEach(athikaram => {
                 const option = document.createElement('option');
