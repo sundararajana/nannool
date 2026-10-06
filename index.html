@@ -4,26 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>நன்னூல் உரை தேடி</title>
+    <link rel="stylesheet" href="common.css">
     <style>
-        :root {
-            --primary: #059669;
-            --primary-hover: #047857;
-            --bg-color: #F9FAFB;
-            --surface: #FFFFFF;
-            --border: #E5E7EB;
-            --text-main: #111827;
-            --text-muted: #6B7280;
-        }
-
-        body, html {
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-        }
-
         .top-nav {
             background-color: var(--surface);
             border-bottom: 1px solid var(--border);
@@ -220,12 +202,6 @@
             border-radius: 4px;
         }
 
-        .external-link {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 500;
-        }
-
         .external-nurpa-link,  .semantic-search-link, .concordance-link {
             margin-left: 15px;
             color: var(--primary);
@@ -277,10 +253,7 @@
             <div style="display: flex; gap: 10px;">
                 <input type="text" id="nurpa-search-input" placeholder="நூற்பாக்களில் தேட... (Search text)"
                     style="flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 1rem;">
-                <button onclick="executeSearch()"
-                        style="padding: 10px 20px; background-color: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
-                    தேடு
-                </button>
+                <button onclick="executeSearch()" class="search-button">தேடு</button>                  
             </div>
             <div style="display: flex; gap: 10px;">
                 <span><strong>
