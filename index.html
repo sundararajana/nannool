@@ -643,10 +643,13 @@
                     document.getElementById('nurpa-display').style.display = 'block';
 
                     // Build and inject the TamilVU inline iframe dynamically
+                    /*
+                    // tamilvu site is highly flaky. Shows NPE or certicate invalid etc. Embedding content in iframe it is a bad idea.
                     const iframeUrl = `https://www.tamilvu.org/slet/l0100/l0100pd1.jsp?bookid=6&auth_pub_id=15&pno=${songNo}`;
                     document.getElementById('tamilvu-iframe-container').innerHTML = `
                         <iframe src="${iframeUrl}" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
                     `;
+                    */
                 } else {
                     // Hide the box if the nurpa isn't in the JSON (defensive code)
                     document.getElementById('nurpa-display').style.display = 'none';
