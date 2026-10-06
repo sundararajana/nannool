@@ -7,13 +7,33 @@
   <title>நன்னூல் — பொருண்மைத் தேடல் (Semantic Search)</title>
 
   <style>
-    body {
+    
+    :root {
+      --primary: #059669;
+      --primary-hover: #047857;
+      --bg-color: #F9FAFB;
+      --surface: #FFFFFF;
+      --border: #E5E7EB;
+      --text-main: #111827;
+      --text-muted: #6B7280;
+    }
+
+    body, html {
       font-family: system-ui, -apple-system, BlinkMacSystemFont,
                    "Segoe UI", "Noto Sans Tamil", sans-serif;
       max-width: 900px;
       margin: 2rem auto;
       padding: 0 1rem;
       line-height: 1.6;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      margin: 0;
+      color: var(--primary);
+      white-space: nowrap;
     }
 
     .search {
@@ -186,7 +206,7 @@
 
         return `
           <div class="result">
-            <a href="index.html?song_no=${encodeURIComponent(songNo)}" target="_blank">
+            <a style="color: var(--primary);" href="index.html?song_no=${encodeURIComponent(songNo)}" target="_blank">
               ${escapeHtml(String(songNo))}
             </a>
             <span class="score">${(score *100).toFixed(2)} %</span>
