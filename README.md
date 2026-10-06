@@ -13,13 +13,13 @@ text search in nurpas.
 
 ## data
 
-* nannool.json. This was scrapped Project Madurai Nannool webpage by an LLM.
+* nannool.json. This was scraped Project Madurai Nannool webpage by an LLM.
 
 * concordance.json. This is corcordnce reverse index produced from nannool.json.
 This was created by running the Python program concordance_builder.py.
 
 * nannool-cict-mulam.json. This is word (sandhi) split nurpas produced by
-running nannool-dict.py. This script uses data scrapped from CICT web page.
+running nannool-dict.py. This script uses data scraped from CICT web page.
 
 * node js program generate-embeddings.mjs is run to produce nannool_with_embeddings.json
 for semantic search.
