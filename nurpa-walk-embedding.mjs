@@ -48,7 +48,10 @@ async function forEachNurpa(jsonData, callback) {
       fields.push(String(viruttiyurai.gloss_ils));
     }
     if (viruttiyurai?.expansion != null && viruttiyurai.expansion !== "") {
-      fields.push(String(viruttiyurai.expansion));
+      let expansion = String(viruttiyurai.expansion);
+      // remove those page transition tags like {{END PAGE 04b}} {{BEGIN PAGE 05அ}}
+      expansion = expansion.replace(/\{\{END PAGE [^}]+\}\}\s*\{\{BEGIN PAGE [^}]+\}\}/g, '');
+      fields.push(expansion);
     }
 
     // Join collected fields with '\n'
