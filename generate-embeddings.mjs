@@ -3,7 +3,7 @@
 
 import fs from 'fs/promises';
 import { pipeline } from '@huggingface/transformers';
-import { forEachNurpaCICT } from './nurpa-walk-embedding.mjs';
+import { forEachNurpa } from './nurpa-walk-embedding.mjs';
 
 const output_json = './nannool_with_embeddings.json';
 
@@ -18,7 +18,7 @@ async function generateEmbeddings() {
   const enrichedData = [];
   let nurpaCounter = 0;
 
-  await forEachNurpaCICT(async (nurpaText, textContent) => {
+  await forEachNurpa(async (nurpaText, textContent) => {
     // Skip index 0 (சிறப்புப் பாயிரம்)
     if (nurpaCounter == 0) {
       console.log(`Processing raw entries (skipping index 0 / சிறப்புக் பாயிரம்)...`);

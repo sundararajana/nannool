@@ -1,13 +1,13 @@
 import { AutoTokenizer } from '@huggingface/transformers';
 
-import { forEachNurpaCICT } from './nurpa-walk-embedding.mjs';
+import { forEachNurpa } from './nurpa-walk-embedding.mjs';
 
 async function auditCorpus(documents) {
     const tokenizer = await AutoTokenizer.from_pretrained('Xenova/multilingual-e5-small');
 
     const lengths = [];
 
-    await forEachNurpaCICT((_, fullText) => {
+    await forEachNurpa((_, fullText) => {
         const encoded = tokenizer(fullText, { return_tensor: false });
         lengths.push(encoded.input_ids.length);
     });

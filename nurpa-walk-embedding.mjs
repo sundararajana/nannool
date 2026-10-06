@@ -1,12 +1,14 @@
 import fs from 'fs/promises';
 
-const input_json = './nannool-cict.json';
+const pm_json = './nannool.json';
+const cict_json = './nannool-cict.json';
 
 // nannool CICT data. Callback receives nurpaText
 // and extended text content (atikaram, iyal, nurpa text
 // nurpa variants, urai explanations from two authors).
-async function forEachNurpa(jsonData, callback) {
-  for (const item of jsonData) {
+async function forEachNurpaImpl(pmData, cictData, callback) {
+  let nurpaNumber = 0;
+  for (const item of cictData) {
     const fields = [];
 
     // Not adding atikaram and iyal to avoid accidental
@@ -16,6 +18,15 @@ async function forEachNurpa(jsonData, callback) {
 
     // Extract 'iyal' (top-level)
     // fields.push(String(item.iyal));
+
+    // if Project Madurai data has title associated, use it.
+    // gives much better context for a nurpa (when available).
+    if (nurpaNumber > 0) {
+      const title = pmData.nurpas[nurpaNumber - 1].title;
+      if (title != null && title !== "") {
+        fields.push(title);
+      }
+    }
 
     // Extract 'mulam' (top-level)
     fields.push(String(item.mulam));
@@ -57,10 +68,13 @@ async function forEachNurpa(jsonData, callback) {
     // Join collected fields with '\n'
     const fullText = fields.join("\n");
     await callback(item.mulam, fullText);
+
+    nurpaNumber++;
   }
 }
 
-export async function forEachNurpaCICT(callback) {
-    const rawData = JSON.parse(await fs.readFile(input_json, 'utf-8'));
-    await forEachNurpa(rawData, callback);
+export async function forEachNurpa(callback) {
+    const pmData = JSON.parse(await fs.readFile(pm_json, 'utf-8'));
+    const cictData = JSON.parse(await fs.readFile(cict_json, 'utf-8'));
+    await forEachNurpaImpl(pmData, cictData, callback);
 }
