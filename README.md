@@ -13,7 +13,8 @@ text search in nurpas.
 
 ## data
 
-* nannool.json. This was scraped Project Madurai Nannool webpage by an LLM.
+* nannool.json. This was scraped from Project Madurai Nannool page
+using scrape_nannool_pm.py.
 
 * concordance.json. This is corcordnce reverse index produced from nannool.json.
 This was created by running the Python program concordance_builder.py.
