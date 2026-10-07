@@ -239,7 +239,7 @@
 
          <!-- concordance link -->
         <div class="concordance">
-            <span><strong><a href="concordance.html"  class="concordance-link" target="_blank">நன்னூல் தொடரடைவு (concordance)</a></strong></span>
+            <span><strong><a href="concordance.html"  class="concordance-link" target="NannoolConcordancePage">நன்னூல் தொடரடைவு (concordance)</a></strong></span>
         </div>
 
         <div id="search-section" style="margin: 20px 0; padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
@@ -251,7 +251,7 @@
             <div style="display: flex; gap: 10px;">
                 <span><strong>
                 <!-- Link to the semantic search page -->
-                <a href="search.html" class="semantic-search-link" title="Switch to AI-powered semantic search" target="NannoolSemanticSearch">
+                <a href="search.html" class="semantic-search-link" title="Switch to AI-powered semantic search" target="NannoolSemanticSearchPage">
                     ✨ நன்னூல் பொருண்மைத் தேடலுக்கு (Semantic Search) ...
                 </a>
                 </strong></span>
@@ -325,6 +325,10 @@
     </main>
 
     <script>
+        if (!window.name) {
+            window.name = "NannoolMainPage";
+        }
+
         // used for search to walk through all nurpas for match
         let nurpaDatabase = [];
         // used to find a particular nurpa given its global number
