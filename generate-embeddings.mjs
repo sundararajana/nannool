@@ -10,10 +10,7 @@ const output_json = './nannool_with_embeddings.json';
 async function generateEmbeddings() {
   console.log("Loading multilingual-e5-small model...");
 
-  const extractor = await pipeline('feature-extraction', 'Xenova/multilingual-e5-small', {
-    pooling: 'mean',
-    normalize: true,
-  });
+  const extractor = await pipeline('feature-extraction', 'Xenova/multilingual-e5-small');
 
   const enrichedData = [];
   let nurpaCounter = 0;
