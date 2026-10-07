@@ -113,6 +113,7 @@
 
 <div id="occurrences"></div>
 
+<script src="mobile_detect.js"></script>
 <script>
 
 if (!window.name) {
@@ -222,7 +223,7 @@ function showOccurrences(word) {
             URAI_PAGE_BASE +
             encodeURIComponent(occurrence.global_nurpa);
 
-        link.target = "NannoolMainPage";
+        link.target = isMobile ? "_blank" : "NannoolMainPage";
 
         const location = document.createElement("div");
         location.className = "location";

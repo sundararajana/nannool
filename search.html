@@ -90,7 +90,10 @@
 <div id="status">Loading...</div>
 <div id="results"></div>
 
+<script src="mobile_detect.js"></script>
+
 <script type="module">
+
   if (!window.name) {
     window.name = "NannoolSemanticSearchPage";
   }
@@ -188,9 +191,11 @@
       results.innerHTML = ranked.map(({ item, score }) => {
         const songNo = item.id;
 
+        const target = isMobile ? "_blank" : "NannoolMainPage";
+
         return `
           <div class="result">
-            <a style="color: var(--primary);" href="index.html?song_no=${encodeURIComponent(songNo)}" target="NannoolMainPage">
+            <a style="color: var(--primary);" href="index.html?song_no=${encodeURIComponent(songNo)}" target="${target}">
               ${escapeHtml(String(songNo))}
             </a>
             <span class="score">Similarity: ${(score).toFixed(2)}</span>
