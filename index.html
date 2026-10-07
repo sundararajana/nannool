@@ -325,7 +325,10 @@
     </main>
 
     <script>
+        // used for search to walk through all nurpas for match
         let nurpaDatabase = [];
+        // used to find a particular nurpa given its global number
+        let numberToNurpa = new Map();
 
         // Nannool Data Structure
         // Based on standard 462 count.
@@ -375,8 +378,12 @@
         const tamilvuNurpaLink = document.getElementById('tamilvu-nurpa-link');
         const changeAuthorBtn = document.getElementById('change-author-btn');
 
+        // currently selected/shown athikaram on screen
         let currentAthikaramId = nannoolData[0].id;
+        // currently selected/shown iyal on screeen.
         let currentIyal = nannoolData[0].iyals[0];
+        // Note: This is currently showing (selected) nurpa. This need not be
+        // from the currently selected athikaram and/or current showing iyal
         let activeSongNo = null;
         let cictReaderWindow = null;
         let tamilvuReaderWindow = null;
@@ -445,6 +452,11 @@
                     // skip the first sirappu payiram nurpa in CICT data
                     "cict_word_split_nurpa": cictData[index + 1]
                 }));
+
+                // fill nurpa number to nurpa map for quick find by number
+                nurpaDatabase.forEach((value, _) => {
+                    numberToNurpa.set(value.number, value);
+                });
 
                 populateNurpas();
 
@@ -553,7 +565,9 @@
         }
 
         function openTamilvu() {
-            const targetUrl = `https://www.tamilvu.org/slet/l0900/l0900uri.jsp?song_no=${activeSongNo}&book_id=6&head_id=${currentAthikaramId}`;
+            const activeSongAthikaram = findLocationOfNurpa(activeSongNo).athikaramId;
+            const targetUrl = "https://www.tamilvu.org/slet/l0900/l0900uri.jsp?" +
+                `song_no=${activeSongNo}&book_id=6&head_id=${activeSongAthikaram}`;
 
             if (!tamilvuReaderWindow || tamilvuReaderWindow.closed) {
                 tamilvuReaderWindow = window.open(targetUrl, "TamilvuNannoolReader");
@@ -573,12 +587,10 @@
                 btn.dataset.songNo = i;
 
                 // Add native browser tooltip on hover
-                if (typeof nurpaDatabase !== 'undefined' && nurpaDatabase.length > 0) {
-                    const nurpaObj = nurpaDatabase.find(s => s.number === i);
-                    if (nurpaObj) {
-                        // Combines title and text with a line break for a clean preview
-                        btn.title = nurpaObj.title ? `${nurpaObj.title}\n\n${nurpaObj.text}` : nurpaObj.text;
-                    }
+                const nurpaObj = numberToNurpa.get(i);
+                if (nurpaObj) {
+                    // Combines title and text with a line break for a clean preview
+                    btn.title = nurpaObj.title ? `${nurpaObj.title}\n\n${nurpaObj.text}` : nurpaObj.text;
                 }
 
                 if (i === activeSongNo) {
@@ -632,28 +644,26 @@
             }
 
             // 2. Inject the JSON text into the card
-            if (typeof nurpaDatabase !== 'undefined' && nurpaDatabase.length > 0) {
-                const nurpaObj = nurpaDatabase.find(s => s.number === songNo);
-                if (nurpaObj) {
-                    // Update the title and text
-                    document.getElementById('nurpa-title').textContent = nurpaObj.title || "";
-                    document.getElementById('nurpa-text').textContent = nurpaObj.text;
-                    document.getElementById('nurpa-word-split-text').textContent = nurpaObj.cict_word_split_nurpa;
-                    // Make the card visible
-                    document.getElementById('nurpa-display').style.display = 'block';
+            const nurpaObj = numberToNurpa.get(songNo);
+            if (nurpaObj) {
+                // Update the title and text
+                document.getElementById('nurpa-title').textContent = nurpaObj.title || "";
+                document.getElementById('nurpa-text').textContent = nurpaObj.text;
+                document.getElementById('nurpa-word-split-text').textContent = nurpaObj.cict_word_split_nurpa;
+                // Make the card visible
+                document.getElementById('nurpa-display').style.display = 'block';
 
-                    // Build and inject the TamilVU inline iframe dynamically
-                    /*
-                    // tamilvu site is highly flaky. Shows NPE or certicate invalid etc. Embedding content in iframe it is a bad idea.
-                    const iframeUrl = `https://www.tamilvu.org/slet/l0100/l0100pd1.jsp?bookid=6&auth_pub_id=15&pno=${songNo}`;
-                    document.getElementById('tamilvu-iframe-container').innerHTML = `
+                // Build and inject the TamilVU inline iframe dynamically
+                /*
+                // tamilvu site is highly flaky. Shows NPE or certicate invalid etc. Embedding content in iframe it is a bad idea.
+                const iframeUrl = `https://www.tamilvu.org/slet/l0100/l0100pd1.jsp?bookid=6&auth_pub_id=15&pno=${songNo}`;
+                document.getElementById('tamilvu-iframe-container').innerHTML = `
                         <iframe src="${iframeUrl}" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
                     `;
-                    */
-                } else {
-                    // Hide the box if the nurpa isn't in the JSON (defensive code)
-                    document.getElementById('nurpa-display').style.display = 'none';
-                }
+                */
+            } else {
+                // Hide the box if the nurpa isn't in the JSON (defensive code)
+                document.getElementById('nurpa-display').style.display = 'none';
             }
 
             // 3. Update the external nurpa links, status text and next/prev buttons
