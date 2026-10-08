@@ -160,6 +160,55 @@ def parse_nurpa_row(tr):
 # Matches 'ஒ' (\u0b92) or 'ஓ' (\u0b93) immediately followed by 'ள' (\u0bb3)
 pattern = re.compile(r'[\u0b92\u0b93]\u0bb3')
 
+# backup titles for nurpas for which title may be missing
+backup_titles = {
+    64: "குறில் எழுத்துகள்",
+    65: "நெடில் எழுத்துகள்",
+    66: "சுட்டு எழுத்துக்கள்",
+    67: "வினா எழுத்துகள்",
+    68: "வல்லின எழுத்துகள்",
+    69: "மெல்லின எழுத்துகள்",
+    70: "இடையின எழுத்துகள்",
+    76: "உயிர் எழுத்துப் பிறப்பு அ ஆ",
+    77: "உயிர் எழுத்துப் பிறப்பு இ ஈ எ ஏ ஐ",
+    78: "உயிர் எழுத்துப் பிறப்பு உ ஊ ஒ ஓ ஒள ",
+    79: "மெய் எழுத்துப் பிறப்பு க ங ச ஞ ட ண",
+    80: "மெய் எழுத்துப் பிறப்பு த ந",
+    81: "மெய் எழுத்துப் பிறப்பு ப ம",
+    82: "மெய் எழுத்துப் பிறப்பு ய",
+    83: "மெய் எழுத்துப் பிறப்பு ர ழ",
+    84: "மெய் எழுத்துப் பிறப்பு ல ள",
+    85: "மெய் எழுத்துப் பிறப்பு வ",
+    86: "மெய் எழுத்துப் பிறப்பு ற ன",
+    87: "சார்பெழுத்துக்கு இடமுயற்சி",
+    104: "யகர மொழி முதல் எழுத்துகள்",
+    105: "ஞகர மொழி முதல் எழுத்துகள்",
+    106: "ஙகர மொழி முதல் எழுத்துகள்",
+    110: "இடைநிலை மெய்ம்மயக்கம்",
+    112: "ஞ ந முன் மெய்ம்மயக்கம்",
+    113: "ட ற முன் மெய்ம்மயக்கம்",
+    114: "ண ன முன் மெய்ம்மயக்கம்",
+    115: "ம முன் மெய்ம்மயக்கம்",
+    116: "ய ர ழ முன் மெய்ம்மயக்கம்",
+    117: "ல ள முன் மெய்ம்மயக்கம்",
+    118: "உடனிலை மெய்ம்மயக்கம்",
+    136: "பண்புப்பெயர்ப் புணர்ச்சி",
+    140: "வினை பெயர் விகுதிகள்",
+    148: "முதலெழுத்து ர ல ய அரங்கன் இராமன் இலாபம்",
+    162: "உடம்படுமெய்",
+    170: "பல சில புணர்ச்சி",
+    175: "புளி சுவை புணர்ச்சி",
+    186: "திசைப்பெயர் புணர்ச்சி",
+    187: "தேங்காய் புணர்ச்சி",
+    188: "எண்ணு நிறை புணர்ச்சி",
+    214: "தேன்மொழி புணர்ச்சி",
+    246: "எல்லாரும் எல்லீரும் உருபுப்புணர்ச்சி",
+    247: "மூவிடப்பெயர் உருபுப்புணர்ச்சி",
+    248: "ஆ, மா, கோ என்னும் ஓர் எழுத்துப் பெயர் உருபுப்புணர்ச்சி",
+    249: "எண்ணுப்பெயர் உருபுப்புணர்ச்சி",
+    250: "அவ, இவ, உவ உருபுப்புணர்ச்சி"
+}
+
 # project madurai nanool nurpa texts has this bug.
 def normalize_au_letter(text):
     if not isinstance(text, str):
@@ -249,27 +298,23 @@ def scrape(html):
                 # is nevertheless tracked above because it is needed
                 # to understand the PM hierarchy.
 
-                # HACK specific nurpa where title and text are messed
-                if number == 87:
-                    nurpas.append(
-                        {
-                            "number": number,
-                            "adhikaram": adhikaram,
-                            "iyal": iyal,
-                            "title": "சார்பெழுத்துக்கு இடமுயற்சி",
-                            "text": "ஆய்தக் கிடந்தலை அங்கா முயற்சி\nசார்பெழுத் தேனவுந் தம்முத லனைய"
-                        }
-                    )
-                else:
-                    nurpas.append(
-                        {
-                            "number": number,
-                            "adhikaram": adhikaram,
-                            "iyal": iyal,
-                            "title": normalize_au_letter(title),
-                            "text": normalize_au_letter(text),
-                        }
-                    )
+                # HACK specific nurpas for which title may be missing or
+                # we want to augment title by a prefix
+                try:
+                    if int(number) in backup_titles:
+                        title = backup_titles[int(number)] + " " + (title or "")
+                except:
+                    pass
+
+                nurpas.append(
+                    {
+                        "number": number,
+                        "adhikaram": adhikaram,
+                        "iyal": iyal,
+                        "title": normalize_au_letter(title),
+                        "text": normalize_au_letter(text),
+                    }
+                )
 
     return nurpas
 
