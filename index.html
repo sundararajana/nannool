@@ -325,10 +325,10 @@
 
     </main>
 
+    <script src="mobile_detect.js"></script>
+
     <script>
-        if (!window.name) {
-            window.name = "NannoolMainPage";
-        }
+        window.name = "NannoolMainPage";
 
         // used for search to walk through all nurpas for match
         let nurpaDatabase = [];
@@ -391,8 +391,6 @@
         // Note: This is currently showing (selected) nurpa. This need not be
         // from the currently selected athikaram and/or current showing iyal
         let activeSongNo = null;
-        let cictReaderWindow = null;
-        let tamilvuReaderWindow = null;
 
         function executeSearch() {
             const inputField = document.getElementById('nurpa-search-input');
@@ -505,7 +503,8 @@
             changeAuthorBtn.addEventListener('click', () => {
                 alert("தமிழ் இணையக் கல்விக்கழகத்தின் முதன்மைப் பக்கம் புதிய திரையில் திறக்கப்படும். அங்கு உரையாசிரியரைத் தேர்ந்தெடுத்தலாம்.");
                 // Updated book_id=6 for Nannool
-                window.open("https://www.tamilvu.org/library/l0900/html/l0900ind.htm?book_id=6", "NannoolReader");
+                window.open("https://www.tamilvu.org/library/l0900/html/l0900ind.htm?book_id=6",
+                    isMobile ? "_blank" : "TamilvuNannoolReader");
             });
 
             populateIyals(currentAthikaramId);
@@ -562,12 +561,7 @@
 
         function openCICT() {
             const targetUrl = `https://cictdl.github.io/Nannul-of-Pavananti-Munivar/#n=${activeSongNo}`;
-            if (!cictReaderWindow || cictReaderWindow.closed) {
-                cictReaderWindow = window.open(targetUrl, "CICTNannoolReader");
-            } else {
-                cictReaderWindow.location.href = targetUrl;
-                cictReaderWindow.focus();
-            }
+            window.open(targetUrl, isMobile ? "_blank" : "CICTNannoolReader");
         }
 
         function openTamilvu(uraiSelection = true) {
@@ -580,12 +574,7 @@
                 targetUrl = `https://www.tamilvu.org/slet/l0100/l0100pd1.jsp?bookid=6&auth_pub_id=15&pno=${activeSongNo}`
             }
 
-            if (!tamilvuReaderWindow || tamilvuReaderWindow.closed) {
-                tamilvuReaderWindow = window.open(targetUrl, "TamilvuNannoolReader");
-            } else {
-                tamilvuReaderWindow.location.href = targetUrl;
-                tamilvuReaderWindow.focus();
-            }
+            window.open(targetUrl, isMobile ? "_blank" : "TamilvuNannoolReader");
         }
 
         function populateNurpas() {
