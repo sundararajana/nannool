@@ -15,6 +15,18 @@ URL = (
 )
 
 
+# Compiled regex pattern:
+# Matches 'ஒ' (\u0b92) or 'ஓ' (\u0b93) immediately followed by 'ள' (\u0bb3)
+# but not followed by vowel matra sign
+pattern = re.compile(r'[\u0b92\u0b93]\u0bb3(?![\u0bbe-\u0bcc])')
+
+# CICT nanool nurpa texts has the above transcription issue
+def normalize_au_letter(text):
+    if not isinstance(text, str):
+        return text
+    # Replace any matched variation with the correct ஔ (\u0b94)
+    return pattern.sub('\u0b94', text)
+
 def main():
     print(f"Fetching {URL} ...")
 
@@ -44,6 +56,21 @@ def main():
     records = data["nurpa"]
 
     print(f"Records found: {len(records)}")
+
+    # Correct the known CICT transcription issue in selected fields.
+    fields_to_normalize = ("mulam", "mulam_f1")
+    corrections = 0
+
+    for record in records:
+        for field in fields_to_normalize:
+            value = record.get(field)
+            if isinstance(value, str):
+                corrected = normalize_au_letter(value)
+                corrections += value.count("ஒள") - corrected.count("ஒள")
+                corrections += value.count("ஓள") - corrected.count("ஓள")
+                record[field] = corrected
+
+    print(f"Corrections applied: {corrections}")
 
     # ------------------------------------------------------------------
     # Complete CICT records

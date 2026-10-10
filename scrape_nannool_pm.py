@@ -161,6 +161,13 @@ def parse_nurpa_row(tr):
 # but not followed by vowel matra sign
 pattern = re.compile(r'[\u0b92\u0b93]\u0bb3(?![\u0bbe-\u0bcc])')
 
+# project madurai nanool nurpa texts has this bug.
+def normalize_au_letter(text):
+    if not isinstance(text, str):
+        return text
+    # Replace any matched variation with the correct ஔ (\u0b94)
+    return pattern.sub('\u0b94', text)
+
 # backup titles for nurpas for which title may be missing
 backup_titles = {
     64: "குறில் எழுத்துகள்",
@@ -219,13 +226,6 @@ backup_titles = {
     374: "தொகாநிலைத் தொடர்மொழி",
     407: "இரக்கும் சொற்கள் ஈ தா கொடு"
 }
-
-# project madurai nanool nurpa texts has this bug.
-def normalize_au_letter(text):
-    if not isinstance(text, str):
-        return text
-    # Replace any matched variation with the correct ஔ (\u0b94)
-    return pattern.sub('\u0b94', text)
 
 def scrape(html):
     soup = BeautifulSoup(html, "html.parser")
