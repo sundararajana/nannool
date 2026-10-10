@@ -158,7 +158,8 @@ def parse_nurpa_row(tr):
 
 # Compiled regex pattern:
 # Matches 'ஒ' (\u0b92) or 'ஓ' (\u0b93) immediately followed by 'ள' (\u0bb3)
-pattern = re.compile(r'[\u0b92\u0b93]\u0bb3')
+# but not followed by vowel matra sign
+pattern = re.compile(r'[\u0b92\u0b93]\u0bb3(?![\u0bbe-\u0bcc])')
 
 # backup titles for nurpas for which title may be missing
 backup_titles = {
