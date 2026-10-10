@@ -4,7 +4,7 @@
     // Split the text by spaces (or whitespace)
     const words = text.split(/\s+/);
 
-    // Map each word to an HTML anchor tag pointing to your concordance page
+    // Map each word to an HTML anchor tag pointing to the concordance page
     return words.map(word => {
       // Optional: strip trailing punctuation (like commas, periods, semicolons)
       // if you want the link to target just the clean word lemma/form.

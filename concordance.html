@@ -103,6 +103,24 @@
 
 <div id="stats"></div>
 
+<div class="search-container">
+    <input type="text" id="searchInput" placeholder="Search concordance by word" autocomplete="off" />
+    <div id="loadingStatus">Initializing model and loading embeddings...</div>
+    <ul id="resultsList" class="results-list" style="display: none;"></ul>
+</div>
+
+<style>
+    .search-container { font-family: sans-serif; max-width: 500px; margin: 20px auto; }
+    #searchInput { width: 100%; padding: 10px; font-size: 16px; box-sizing: border-box; }
+    #loadingStatus { font-size: 13px; color: #666; margin-top: 5px; }
+    .results-list { list-style: none; padding: 0; margin: 5px 0 0 0; border: 1px solid #ccc; border-radius: 4px; background: #fff; }
+    .results-list li { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; justify-content: space-between; }
+    .results-list li:last-child { border-bottom: none; }
+    .results-list li:hover { background-color: #f5f5f5; }
+    .score { color: #888; font-size: 12px; }
+</style>
+
+
 <div id="initials"></div>
 
 <hr>
@@ -316,6 +334,152 @@ function escapeHtml(text) {
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;");
 }
+
+</script>
+
+<script type="module">
+
+// code for semantic search of words
+
+import { pipeline } from
+    "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.0";
+
+class ConcordanceSemanticSearch {
+    constructor() {
+        this.extractor = null;
+        this.embeddingsData = null;
+        this.isInitialized = false;
+    }
+
+    async init(gzUrl = 'word_embeddings.json.gz', statusElementId = 'loadingStatus') {
+        const statusEl = document.getElementById(statusElementId);
+
+        try {
+            // 1. Load the model and fetch the .gz file concurrently
+            if (statusEl) statusEl.textContent = "Loading model and fetching compressed embeddings...";
+
+            const [extractor, response] = await Promise.all([
+                pipeline('feature-extraction', 'Xenova/multilingual-e5-small'),
+                fetch(gzUrl)
+            ]);
+
+            this.extractor = extractor;
+
+            console.log("done download");
+
+            if (!response.ok) throw new Error(`Failed to fetch ${gzUrl}: ${response.statusText}`);
+
+            // 2. Decompress the .gz stream on the fly using browser native DecompressionStream
+            if (statusEl) statusEl.textContent = "Decompressing embeddings...";
+            const decompressedStream = response.body.pipeThrough(new DecompressionStream('gzip'));
+            const jsonText = await new Response(decompressedStream).text();
+
+            // 3. Parse JSON data
+            this.embeddingsData = JSON.parse(jsonText);
+
+            this.isInitialized = true;
+
+            if (statusEl) {
+                statusEl.textContent = `Ready! Loaded ${this.embeddingsData.length} concordance terms.`;
+                setTimeout(() => statusEl.style.display = 'none', 3000); // Hide status after 3s
+            }
+        } catch (error) {
+            console.error("Initialization error:", error);
+            if (statusEl) statusEl.textContent = "Error loading search engine. Check console.";
+        }
+    }
+
+    async search(rawQuery, topK = 5) {
+        if (!this.isInitialized || !rawQuery.trim()) return [];
+
+        // E5 model requirement: prefix search query with "query: "
+        const queryText = `query: ${rawQuery.trim()}`;
+
+        // Generate query embedding vector
+        const output = await this.extractor(queryText, { pooling: 'mean', normalize: true });
+        const queryVec = output.data; // Float32Array
+
+        // Compute cosine similarity (dot product since vectors are normalized)
+        const scores = this.embeddingsData.map(item => {
+            const wordVec = item.embedding;
+            let dotProduct = 0;
+
+            for (let i = 0; i < wordVec.length; i++) {
+                dotProduct += wordVec[i] * queryVec[i];
+            }
+
+            return { word: item.word, score: dotProduct };
+        });
+
+        // Sort descending and slice top results
+        scores.sort((a, b) => b.score - a.score);
+        return scores.slice(0, topK);
+    }
+}
+
+// --- Wire up UI with Debounce ---
+document.addEventListener('DOMContentLoaded', async () => {
+    const searchEngine = new ConcordanceSemanticSearch();
+    await searchEngine.init('word_embeddings.json.gz');
+
+    const inputEl = document.getElementById('searchInput');
+    const resultsListEl = document.getElementById('resultsList');
+
+    let debounceTimer;
+
+    inputEl.addEventListener('input', (e) => {
+        const query = e.target.value;
+
+        clearTimeout(debounceTimer);
+
+        if (!query.trim()) {
+            resultsListEl.style.display = 'none';
+            resultsListEl.innerHTML = '';
+            return;
+        }
+
+        // 250ms debounce so it doesn't trigger computation on every single keystroke instantly
+        debounceTimer = setTimeout(async () => {
+            const results = await searchEngine.search(query);
+
+            if (results.length === 0) {
+                resultsListEl.style.display = 'none';
+                return;
+            }
+
+            // Render top 5 clickable list items
+            resultsListEl.innerHTML = results.map(res => `
+                <li data-word="${res.word}">
+                    <span>${res.word}</span>
+                    <span class="score">${(res.score * 100).toFixed(1)}% match</span>
+                </li>
+            `).join('');
+
+            resultsListEl.style.display = 'block';
+
+            // Hook up click handler to show words and occurences
+            resultsListEl.querySelectorAll('li').forEach(li => {
+                li.addEventListener('click', () => {
+                    const selectedWord = li.getAttribute('data-word');
+                    inputEl.value = selectedWord;
+                    resultsListEl.style.display = 'none';
+
+                    const firstLetter = selectedWord.charAt(0);
+                    showWords(firstLetter);
+                    showOccurrences(selectedWord);
+                });
+            });
+        }, 250);
+    });
+
+    // Hide dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.search-container')) {
+            resultsListEl.style.display = 'none';
+        }
+    });
+});
+
 </script>
 
 </body>

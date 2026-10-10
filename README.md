@@ -19,8 +19,12 @@ using scrape_nannool_pm.py.
 * concordance.json. This is corcordnce reverse index produced from nannool.json.
 This was created by running the Python program concordance_builder.py.
 
+* word_embeddings.json and .json.gz. This is embeddings for all the words found in Nannool.
+node js program generate-word-embeddings.mjs is run to create these files. This is used
+in concordance page for word search.
+
 * nannool-cict-mulam.json. This is word (sandhi) split nurpas produced by
 running nannool-dict.py. This script uses data scraped from CICT web page.
 
 * node js program generate-embeddings.mjs is run to produce nannool_with_embeddings.json
-for semantic search.
+for semantic search (search.html)
