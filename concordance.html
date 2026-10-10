@@ -418,27 +418,40 @@ class ConcordanceSemanticSearch {
 }
 
 // --- Wire up UI with Debounce ---
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
     const searchEngine = new ConcordanceSemanticSearch();
-    await searchEngine.init('word_embeddings.json.gz');
-
     const inputEl = document.getElementById('searchInput');
     const resultsListEl = document.getElementById('resultsList');
+    const statusEl = document.getElementById('loadingStatus');
 
+    let isInitialized = false;
     let debounceTimer;
 
+    // 1. Lazy-load the model and embeddings ONLY when the user clicks/focuses the input
+    inputEl.addEventListener('focus', async () => {
+        if (isInitialized) return;
+
+        statusEl.textContent = "Warming up search engine...";
+        statusEl.style.display = 'block';
+
+        // Initialize in the background so the keyboard pops up instantly
+        await searchEngine.init('word_embeddings.json.gz');
+        isInitialized = true;
+
+        statusEl.textContent = "Ready!";
+        setTimeout(() => statusEl.style.display = 'none', 2000);
+    }, { once: true });
+
+    // 2. Handle as-you-type search
     inputEl.addEventListener('input', (e) => {
         const query = e.target.value;
-
         clearTimeout(debounceTimer);
 
-        if (!query.trim()) {
+        if (!query.trim() || !isInitialized) {
             resultsListEl.style.display = 'none';
-            resultsListEl.innerHTML = '';
             return;
         }
 
-        // 250ms debounce so it doesn't trigger computation on every single keystroke instantly
         debounceTimer = setTimeout(async () => {
             const results = await searchEngine.search(query);
 
@@ -447,7 +460,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
 
-            // Render top 5 clickable list items
             resultsListEl.innerHTML = results.map(res => `
                 <li data-word="${res.word}">
                     <span>${res.word}</span>
@@ -457,7 +469,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             resultsListEl.style.display = 'block';
 
-            // Hook up click handler to show words and occurences
+            // Click handler for your existing concordance viewer
             resultsListEl.querySelectorAll('li').forEach(li => {
                 li.addEventListener('click', () => {
                     const selectedWord = li.getAttribute('data-word');
@@ -470,13 +482,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
             });
         }, 250);
-    });
-
-    // Hide dropdown when clicking outside
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('.search-container')) {
-            resultsListEl.style.display = 'none';
-        }
     });
 });
 
