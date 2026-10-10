@@ -15,7 +15,7 @@ async function generateEmbeddings() {
   const enrichedData = [];
   let nurpaCounter = 0;
 
-  await forEachNurpa(async (nurpaText, textContent) => {
+  await forEachNurpa(async (pmNurpaText, cictNurpaText, textContent) => {
     // Skip index 0 (சிறப்புப் பாயிரம்)
     if (nurpaCounter == 0) {
       console.log(`Processing raw entries (skipping index 0 / சிறப்புக் பாயிரம்)...`);
@@ -38,7 +38,8 @@ async function generateEmbeddings() {
 
     enrichedData.push({
       id: nurpaCounter,
-      text: nurpaText,
+      pm_text: pmNurpaText,
+      cict_text: cictNurpaText,
       embedding: roundedVector
     });
 

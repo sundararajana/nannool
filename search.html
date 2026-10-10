@@ -91,6 +91,7 @@
 <div id="results"></div>
 
 <script src="mobile_detect.js"></script>
+<script src="concordance_utils.js"></script>
 
 <script type="module">
   window.name = "NannoolSemanticSearchPage";
@@ -196,7 +197,8 @@
               ${escapeHtml(String(songNo))}
             </a>
             <span class="score">Similarity: ${(score).toFixed(2)}</span>
-            <div class="text">${escapeHtml(item.text)}</div>
+            <div class="text">${escapeHtml(item.cict_text)}</div>
+            <div class="text">${concordanceLinkedNurpa(isMobile, escapeHtml(item.pm_text))}</div>
           </div>
         `;
       }).join("");

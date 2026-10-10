@@ -7,7 +7,7 @@ async function auditCorpus(documents) {
 
     const lengths = [];
 
-    await forEachNurpa((_, fullText) => {
+    await forEachNurpa((pmNurpa, cictNurpa, fullText) => {
         const encoded = tokenizer(fullText, { return_tensor: false });
         lengths.push(encoded.input_ids.length);
     });

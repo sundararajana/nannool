@@ -326,6 +326,7 @@
     </main>
 
     <script src="mobile_detect.js"></script>
+    <script src="concordance_utils.js"></script>
 
     <script>
         window.name = "NannoolMainPage";
@@ -649,7 +650,7 @@
             if (nurpaObj) {
                 // Update the title and text
                 document.getElementById('nurpa-title').textContent = nurpaObj.title || "";
-                document.getElementById('nurpa-text').textContent = nurpaObj.text;
+                document.getElementById('nurpa-text').innerHTML = concordanceLinkedNurpa(isMobile, nurpaObj.text);
                 document.getElementById('nurpa-word-split-text').textContent = nurpaObj.cict_word_split_nurpa;
                 // Make the card visible
                 document.getElementById('nurpa-display').style.display = 'block';

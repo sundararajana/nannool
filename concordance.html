@@ -151,6 +151,19 @@ fetch("concordance.json")
             `${wordCount} சொற்கள் · ${occurrenceCount} occurrences`;
 
         showInitials();
+
+        // Check for the URL parameter for word to link
+        const urlParams = new URLSearchParams(window.location.search);
+        const wordParam = urlParams.get("word");
+        if (wordParam) {
+            try {
+                const firstLetter = wordParam.charAt(0);
+                showWords(firstLetter);
+                showOccurrences(decodeURIComponent(wordParam));
+            } catch (e) {
+                console.log(e.stack);
+            }
+        }
     })
     .catch(error => {
         console.error(error);

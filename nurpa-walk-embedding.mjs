@@ -3,21 +3,21 @@ import fs from 'fs/promises';
 const pm_json = './nannool.json';
 const cict_json = './nannool-cict.json';
 
-// nannool CICT data. Callback receives nurpaText
-// and extended text content (atikaram, iyal, nurpa text
-// nurpa variants, urai explanations from two authors).
+// nannool CICT data. Callback receives nurpaText as from Project Madurai,
+// nurpa text sandhi split per CICT, and extended text content
+// (nurpa text, nurpa variants, urai explanations from two authors).
 async function forEachNurpaImpl(pmData, cictData, callback) {
   let nurpaNumber = 0;
-  for (const item of cictData) {
+  for (const cictItem of cictData) {
     const fields = [];
 
     // Not adding atikaram and iyal to avoid accidental
     // similarity match just because these two match!
     // Extract 'atikaram' (top-level)
-    // fields.push(String(item.atikaram));
+    // fields.push(String(cictItem.atikaram));
 
     // Extract 'iyal' (top-level)
-    // fields.push(String(item.iyal));
+    // fields.push(String(cictItem.iyal));
 
     // if Project Madurai data has title associated, use it.
     // gives much better context for a nurpa (when available).
@@ -29,20 +29,20 @@ async function forEachNurpaImpl(pmData, cictData, callback) {
     }
 
     // Extract 'mulam' (top-level)
-    fields.push(String(item.mulam));
+    fields.push(String(cictItem.mulam));
 
     // Extract mulam_f1 (top-level) if available
-    if (item?.mulam_f1 != null && item.mulam_f1 !== "") {
-        fields.push(String(item.mulam_f1));
+    if (cictItem?.mulam_f1 != null && cictItem.mulam_f1 !== "") {
+        fields.push(String(cictItem.mulam_f1));
     }
 
     // Extract mulam_f2 (top-level) if available
-    if (item?.mulam_f2 != null && item.mulam_f2 !== "") {
-        fields.push(String(item.mulam_f2));
+    if (cictItem?.mulam_f2 != null && cictItem.mulam_f2 !== "") {
+        fields.push(String(cictItem.mulam_f2));
     }
 
     // Extract 'mayilainathar' fields
-    const mayilainathar = item?.commentary?.mayilainathar;
+    const mayilainathar = cictItem?.commentary?.mayilainathar;
     if (mayilainathar?.gloss_wfw != null && mayilainathar.gloss_wfw !== "") {
         fields.push(String(mayilainathar.gloss_wfw));
     }
@@ -51,7 +51,7 @@ async function forEachNurpaImpl(pmData, cictData, callback) {
     }
 
     // Extract 'viruttiyurai' fields
-    const viruttiyurai = item?.commentary?.viruttiyurai;
+    const viruttiyurai = cictItem?.commentary?.viruttiyurai;
     if (viruttiyurai?.nutalitru_enin != null && viruttiyurai.nutalitru_enin !== "") {
       fields.push(String(viruttiyurai.nutalitru_enin));
     }
@@ -66,8 +66,10 @@ async function forEachNurpaImpl(pmData, cictData, callback) {
     }
 
     // Join collected fields with '\n'
-    const fullText = fields.join("\n");
-    await callback(item.mulam, fullText);
+    const extendedNurpaText = fields.join("\n");
+    // PM text does have not the sirappu pariyam. Copy it from CICT version.
+    const pmText = nurpaNumber > 0 ? pmData.nurpas[nurpaNumber - 1].text : cictItem.mulam;
+    await callback(pmText, cictItem.mulam, extendedNurpaText);
 
     nurpaNumber++;
   }
