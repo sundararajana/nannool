@@ -4,7 +4,7 @@ import unicodedata
 from collections import defaultdict
 
 
-INPUT_FILE = "nannool.json"
+INPUT_FILE = "nannool-cict.json"
 OUTPUT_FILE = "concordance.json"
 
 
@@ -21,10 +21,13 @@ nurpas = []
 concordance = defaultdict(list)
 
 
-for nurpa in data["nurpas"]:
-    global_nurpa = nurpa["number"]
+for nurpa in data:
+    global_nurpa = nurpa["canonical_id"]
+    # ignore sirappu payiram
+    if global_nurpa == 0:
+        continue
 
-    text = unicodedata.normalize("NFC", nurpa["text"])
+    text = unicodedata.normalize("NFC", nurpa["mulam"])
 
     # Store each sūtra exactly once, using 0-based array indexing.
     nurpas.append(text)
@@ -36,9 +39,9 @@ for nurpa in data["nurpas"]:
 
         for position, word in enumerate(words):
             concordance[word].append({
-                "adhikaaram": nurpa["adhikaram"],
+                "adhikaaram": nurpa["atikaram"],
                 "iyal_name": nurpa["iyal"],
-                "title": nurpa["title"],
+                "title": nurpa["heading"],
                 "global_nurpa": global_nurpa,
                 "line": line_number,
                 "position": position,
