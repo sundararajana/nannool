@@ -18,6 +18,15 @@ if ('serviceWorker' in navigator) {
         console.warn('[SW] Registration failed:', err);
       });
   });
+
+  // Globally handle silent page reloads when a new worker takes over
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!refreshing) {
+      refreshing = true;
+      window.location.reload();
+    }
+  });
 }
 
 

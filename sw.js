@@ -2,7 +2,7 @@
 
 // update this cache name if site content (js/html/css) changes
 const PROJECT_PREFIX = 'nannool-shell';
-const CACHE_NAME = 'nanool-shell-v6';
+const CACHE_NAME = 'nanool-shell-v7';
 const ASSETS = [
   // html files, directories
   './',
@@ -24,6 +24,8 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
   );
+  // Force the waiting service worker to become active right away
+  self.skipWaiting();
 });
 
 // Activate: Clean up old shells if you bump version
@@ -37,6 +39,9 @@ self.addEventListener('activate', (event) => {
             console.log(`[SW] Deleting obsolete project cache: ${key}`);
             return caches.delete(key);
           }
+        }).then(() => {
+          // Take control of all open pages immediately
+          return self.clients.claim();
         })
       )
     )
