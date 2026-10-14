@@ -2,7 +2,7 @@
 
 // update this cache name if site content (js/html/css) changes
 const PROJECT_PREFIX = 'nannool-shell';
-const CACHE_NAME = 'nanool-shell-v5';
+const CACHE_NAME = 'nanool-shell-v6';
 const ASSETS = [
   // html files, directories
   './',

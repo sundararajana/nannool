@@ -336,11 +336,6 @@
     <script>
         window.name = "NannoolMainPage";
 
-        // used for search to walk through all nurpas for match
-        let nurpaDatabase = [];
-        // used to find a particular nurpa given its global number
-        let numberToNurpa = new Array(462);
-
         // Nannool Data Structure
         // Based on standard 462 count.
         // Note on 'id': TamilVU uses head_id. URL showed head_id=10 for Eluthu.
@@ -378,6 +373,11 @@
         ];
 
         const MAX_NURPA = nannoolData[2].iyals[4].end; // 462
+
+        // used for search to walk through all nurpas for match
+        let nurpaDatabase = [];
+        // used to find a particular nurpa given its global number
+        let numberToNurpa = new Array(MAX_NURPA);
 
         const athikaramSelect = document.getElementById('athikaram-select');
         const iyalSelect = document.getElementById('iyal-select');
