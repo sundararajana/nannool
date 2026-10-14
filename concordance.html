@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+
+<html lang="ta">
+<head>
+<meta charset="UTF-8">
+<title>நன்னூல் தொடரடைவு (concordance)</title>
+
+<link rel="stylesheet" href="common.css">
+
+<style>
+    body, html {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+
+    button {
+        margin: 0.2rem;
+        padding: 0.35rem 0.6rem;
+        cursor: pointer;
+    }
+
+    button.active {
+        font-weight: bold;
+    }
+
+    .word {
+        display: block;
+        margin: 0.15rem 0;
+        padding: 0;
+        border: 0;
+        background: none;
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+    }
+
+    #words {
+        column-width: 14rem;
+        column-gap: 3rem;
+    }
+
+    .word {
+        break-inside: avoid;
+    }
+
+    .word-count {
+        color: #666;
+        margin-left: 0.5rem;
+    }
+
+    .occurrence {
+        padding: 0.8rem 0;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .location {
+        margin-bottom: 0.4rem;
+        font-size: 0.9rem;
+        color: #555;
+    }
+
+    .global-number {
+        font-weight: bold;
+        margin-right: 0.3rem;
+    }
+
+    .kwic {
+        margin: 0.5rem 0;
+        font-family: serif;
+        font-size: 1.05rem;
+    }
+
+    .kwic mark {
+        background: #fff3a3;
+        font-weight: bold;
+    }
+
+    .text {
+        font-family: serif;
+    }
+
+    a {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+    .search-container {
+        font-family: sans-serif;
+        max-width: 500px;
+        margin: 20px auto;
+    }
+
+    #searchInput {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        box-sizing: border-box;
+    }
+
+    #loadingStatus {
+        font-size: 13px;
+        color: #666;
+        margin-top: 5px;
+    }
+
+    .results-list {
+        list-style: none;
+        padding: 0;
+        margin: 5px 0 0 0;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background: #fff;
+    }
+
+    .results-list li {
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .results-list li:last-child {
+        border-bottom: none;
+    }
+
+    .results-list li:hover {
+        background-color: #f5f5f5;
+    }
+
+    .score {
+        color: #888;
+        font-size: 12px;
+    }
+
+    .results-list li.selected {
+       background-color: #e2e8f0; /* Light gray-blue highlight */
+        font-weight: 500;
+    }
+
+</style>
+
+</head>
+
+<body>
+
+<h1>நன்னூல் தொடரடைவு (concordance)</h1>
+
+<div>
+    <span><strong><a class="external-link" href="index.html" target="NannoolMainPage">நன்னூல் உரை தேடி 🔙</a></strong></span>
+</div>
+
+<div id="stats"></div>
+
+<div class="search-container">
+    <input type="text" id="searchInput" placeholder="Search concordance by word" autocomplete="off" />
+    <div id="loadingStatus">Model not loaded ...</div>
+    <ul id="resultsList" class="results-list" style="display: none;"></ul>
+</div>
+
+<div id="initials"></div>
+
+<hr>
+
+<div id="words"></div>
+
+<hr>
+
+<div id="occurrences"></div>
+
+<script src="mobile_detect.js"></script>
+<script src="json_load.js"></script>
+
+<script>
+
+window.name = "NannoolConcordancePage";
+
+const tamilOrder = [
+    "அ", "ஆ", "இ", "ஈ", "உ", "ஊ", "எ", "ஏ", "ஐ",
+    "ஒ", "ஓ", "ஔ",
+    "க", "ங", "ச", "ஞ", "ட", "ண", "த", "ந",
+    "ப", "ம", "ய", "ர", "ல", "வ", "ழ", "ள", "ற", "ன"
+];
+
+const URAI_PAGE_BASE = "index.html?song_no=";
+
+let nurpas = [];
+let concordance = {};
+
+loadJSON("concordance.json")
+    .then(data => {
+        nurpas = data.nurpas;
+        concordance = data.concordance;
+
+        const wordCount = Object.keys(concordance).length;
+        const occurrenceCount =
+            Object.values(concordance)
+                .reduce((sum, occurrences) => sum + occurrences.length, 0);
+
+        document.getElementById("stats").textContent =
+            `${wordCount} சொற்கள் · ${occurrenceCount} occurrences`;
+
+        showInitials();
+
+        // Check for the URL parameter for word to link
+        const urlParams = new URLSearchParams(window.location.search);
+        const wordParam = urlParams.get("word");
+        if (wordParam) {
+            try {
+                const firstLetter = wordParam.charAt(0);
+                showWords(firstLetter);
+                showOccurrences(decodeURIComponent(wordParam));
+            } catch (e) {
+                console.log(e.stack);
+            }
+        }
+    })
+    .catch(error => {
+        console.error(error);
+        document.getElementById("stats").textContent =
+            "தொடரடைவுத் தரவை பதிவிறக்க முடியவில்லை.";
+    });
+
+
+function getNurpaText(global_nurpa) {
+    return nurpas[global_nurpa - 1];
+}
+
+
+function showInitials() {
+    const container = document.getElementById("initials");
+    container.innerHTML = "";
+
+    for (const initial of tamilOrder) {
+        const button = document.createElement("button");
+        button.textContent = initial;
+
+        button.onclick = () => {
+            showWords(initial);
+            document.getElementById("occurrences").innerHTML = "";
+        };
+
+        container.appendChild(button);
+    }
+}
+
+function showWords(initial) {
+    const container = document.getElementById("words");
+    container.innerHTML = "";
+
+    const words = Object.keys(concordance)
+        .filter(word => word.startsWith(initial))
+        .sort((a, b) => a.localeCompare(b, "ta"));
+
+    for (const word of words) {
+        const button = document.createElement("button");
+        button.className = "word";
+
+        button.innerHTML =
+            `${escapeHtml(word)} <span class="word-count">(${concordance[word].length})</span>`;
+
+        button.onclick = () => {
+            showOccurrences(word);
+        };
+
+        container.appendChild(button);
+    }
+}
+
+function showOccurrences(word) {
+    const container = document.getElementById("occurrences");
+    container.innerHTML = "";
+
+    const occurrences = concordance[word];
+
+    for (const occurrence of occurrences) {
+        const div = document.createElement("div");
+        div.className = "occurrence";
+
+        const link = document.createElement("a");
+
+        link.href =
+            URAI_PAGE_BASE +
+            encodeURIComponent(occurrence.global_nurpa);
+
+        link.target = isMobile ? "_blank" : "NannoolMainPage";
+
+        const location = document.createElement("div");
+        location.className = "location";
+
+        location.innerHTML =
+            `<span class="global-number" style="color: var(--primary);">${escapeHtml(occurrence.global_nurpa)}</span>` +
+            ` · ${escapeHtml(occurrence.adhikaaram)}` +
+            ` · ${escapeHtml(occurrence.iyal_name)}` +
+            ` · ${escapeHtml(occurrence.title)}`;
+
+        link.appendChild(location);
+
+        const kwic = document.createElement("div");
+        kwic.className = "kwic";
+
+        kwic.innerHTML = makeKwic(
+            getNurpaText(occurrence.global_nurpa),
+            word,
+            occurrence.nurpa_position
+        );
+
+        link.appendChild(kwic);
+
+        div.appendChild(link);
+        container.appendChild(div);
+    }
+
+    document.getElementById("occurrences").scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+}
+
+function makeKwic(text, word, position) {
+    if (typeof text !== "string") {
+        return "";
+    }
+
+    if (!Number.isInteger(position)) {
+        return escapeHtml(text);
+    }
+
+    const words = tokenize(text);
+
+    if (position < 0 || position >= words.length) {
+        return escapeHtml(text);
+    }
+
+    const context = 5;
+
+    const start = Math.max(0, position - context);
+    const end = Math.min(words.length, position + context + 1);
+
+    const before = words.slice(start, position).join(" ");
+    const matched = words[position];
+    const after = words.slice(position + 1, end).join(" ");
+
+    return (
+        `${start > 0 ? "... " : ""}` +
+        `${escapeHtml(before)} ` +
+        `<mark>${escapeHtml(matched)}</mark>` +
+        `${after ? " " + escapeHtml(after) : ""}` +
+        `${end < words.length ? " ..." : ""}`
+    );
+}
+
+function tokenize(text) {
+    return text.normalize("NFC")
+        .match(/[\u0B80-\u0BFF]+/g) || [];
+}
+
+function escapeHtml(text) {
+    return String(text ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+}
+
+</script>
+
+<script type="module">
+
+// code for semantic search of words
+
+import { pipeline } from
+    "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.0";
+
+// helper class for semantic search of words data management and search
+class ConcordanceSemanticSearch {
+    constructor() {
+        this.extractor = null;
+        this.embeddingsData = null;
+        this.isInitialized = false;
+    }
+
+    async init(gzUrl = 'word_embeddings.json.gz', statusElementId = 'loadingStatus') {
+        const statusEl = document.getElementById(statusElementId);
+
+        try {
+            // Load the model and fetch the .gz file concurrently
+            if (statusEl) statusEl.textContent = "Loading model and fetching compressed embeddings...";
+
+            const [extractor, embeddingsData] = await Promise.all([
+                pipeline('feature-extraction', 'Xenova/multilingual-e5-small'),
+                loadJSON(gzUrl)
+            ]);
+
+            this.extractor = extractor;
+            console.log("concordance data done download");
+
+            // Parse JSON data
+            this.embeddingsData = embeddingsData;
+
+            this.isInitialized = true;
+
+            if (statusEl) {
+                statusEl.textContent = `Ready! Loaded ${this.embeddingsData.length} concordance terms.`;
+                setTimeout(() => statusEl.style.display = 'none', 3000); // Hide status after 3s
+            }
+        } catch (error) {
+            console.error("Initialization error:", error);
+            if (statusEl) statusEl.textContent = "Error loading search engine. Check console.";
+        }
+    }
+
+    async search(rawQuery, topK = 5) {
+        if (!this.isInitialized || !rawQuery.trim()) return [];
+
+        // E5 model requirement: prefix search query with "query: "
+        const queryText = `query: ${rawQuery.trim()}`;
+
+        // Generate query embedding vector
+        const output = await this.extractor(queryText, { pooling: 'mean', normalize: true });
+        const queryVec = output.data; // Float32Array
+
+        // Compute cosine similarity (dot product since vectors are normalized)
+        const scores = this.embeddingsData.map(item => {
+            const wordVec = item.embedding;
+            let dotProduct = 0;
+
+            for (let i = 0; i < wordVec.length; i++) {
+                dotProduct += wordVec[i] * queryVec[i];
+            }
+
+            return { word: item.word, score: dotProduct };
+        });
+
+        // Sort descending and slice top results
+        scores.sort((a, b) => b.score - a.score);
+        return scores.slice(0, topK);
+    }
+}
+
+// --- Wire up UI with Debounce for semantic search of words ---
+let selectedIndex = -1;
+
+// Unified function when a word is chosen (via Mouse Click or Enter key)
+function selectWord(word, inputEl, resultsListEl) {
+    inputEl.value = word;
+    resultsListEl.style.display = 'none'; // Close dropdown on selection
+    selectedIndex = -1;
+    const firstLetter = word.charAt(0);
+    showWords(firstLetter);
+    showOccurrences(word);
+}
+
+// Highlight active item during arrow key navigation
+function updateActiveSelection(items) {
+    items.forEach((item, index) => {
+        if (index === selectedIndex) {
+            item.classList.add('selected');
+            item.scrollIntoView({ block: 'nearest' });
+        } else {
+            item.classList.remove('selected');
+        }
+    });
+}
+
+// Render results and attach mouse click handlers properly
+function renderResults(results, inputEl, resultsListEl) {
+    selectedIndex = -1; // Reset highlight index on new query
+
+    if (results.length === 0) {
+        resultsListEl.style.display = 'none';
+        return;
+    }
+
+    resultsListEl.innerHTML = results.map(res => `
+        <li data-word="${res.word}">
+            <span>${res.word}</span>
+            <span class="score">${(res.score * 100).toFixed(1)}% match</span>
+        </li>
+    `).join('');
+
+    resultsListEl.style.display = 'block';
+
+    // Attach fresh click listeners to each result item
+    resultsListEl.querySelectorAll('li').forEach(li => {
+        li.addEventListener('click', () => {
+            const word = li.getAttribute('data-word');
+            selectWord(word, inputEl, resultsListEl);
+        });
+    });
+}
+
+// Input & Keydown event listeners setup
+document.addEventListener('DOMContentLoaded', () => {
+    const searchEngine = new ConcordanceSemanticSearch();
+    const inputEl = document.getElementById('searchInput');
+    const resultsListEl = document.getElementById('resultsList');
+    const statusEl = document.getElementById('loadingStatus');
+
+    let isInitialized = false;
+    let debounceTimer;
+
+    // Lazy-load on focus
+    inputEl.addEventListener('focus', async () => {
+        if (isInitialized) return;
+        statusEl.textContent = "Warming up search engine...";
+        statusEl.style.display = 'block';
+
+        await searchEngine.init('word_embeddings.json.gz');
+        isInitialized = true;
+
+        statusEl.textContent = "Ready!";
+        setTimeout(() => statusEl.style.display = 'none', 2000);
+    }, { once: true });
+
+    // As-you-type search input listener
+    inputEl.addEventListener('input', (e) => {
+        const query = e.target.value;
+        clearTimeout(debounceTimer);
+
+        if (!query.trim() || !isInitialized) {
+            resultsListEl.style.display = 'none';
+            return;
+        }
+
+        debounceTimer = setTimeout(async () => {
+            const results = await searchEngine.search(query);
+            renderResults(results, inputEl, resultsListEl);
+        }, 250);
+    });
+
+    // Keyboard navigation (Arrow keys + Enter)
+    inputEl.addEventListener('keydown', (e) => {
+        const items = resultsListEl.querySelectorAll('li');
+        if (resultsListEl.style.display === 'none' || items.length === 0) return;
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault(); // Stop cursor jumping in input box
+            selectedIndex = (selectedIndex + 1) % items.length;
+            updateActiveSelection(items);
+        }
+        else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+            updateActiveSelection(items);
+        }
+        else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (selectedIndex >= 0 && items[selectedIndex]) {
+                const word = items[selectedIndex].getAttribute('data-word');
+                selectWord(word, inputEl, resultsListEl);
+            }
+        }
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.search-container')) {
+            resultsListEl.style.display = 'none';
+        }
+    });
+});
+
+</script>
+
+</body>
+</html>
