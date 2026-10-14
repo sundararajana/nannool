@@ -339,7 +339,7 @@
         // used for search to walk through all nurpas for match
         let nurpaDatabase = [];
         // used to find a particular nurpa given its global number
-        let numberToNurpa = new Map();
+        let numberToNurpa = new Array(462);
 
         // Nannool Data Structure
         // Based on standard 462 count.
@@ -464,7 +464,7 @@
 
                 // fill nurpa number to nurpa map for quick find by number
                 nurpaDatabase.forEach((value, _) => {
-                    numberToNurpa.set(value.number, value);
+                    numberToNurpa[value.number - 1] = value;
                 });
 
                 populateNurpas();
@@ -592,7 +592,7 @@
                 btn.dataset.songNo = i;
 
                 // Add native browser tooltip on hover
-                const nurpaObj = numberToNurpa.get(i);
+                const nurpaObj = numberToNurpa[i - 1];
                 if (nurpaObj) {
                     // Combines title and text with a line break for a clean preview
                     btn.title = nurpaObj.title ? `${nurpaObj.title}\n\n${nurpaObj.text}` : nurpaObj.text;
@@ -650,7 +650,7 @@
             }
 
             // 2. Inject the JSON text into the card
-            const nurpaObj = numberToNurpa.get(songNo);
+            const nurpaObj = numberToNurpa[songNo - 1];
             if (nurpaObj) {
                 // Update the title and text
                 document.getElementById('nurpa-title').textContent = nurpaObj.title || "";
